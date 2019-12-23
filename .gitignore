@@ -46,3 +46,7 @@ html_docs
 backwards/
 eclipse-build
 
+hugufei-workspace/config-1/data/
+hugufei-workspace/config-1/logs/
+hugufei-workspace/config-2/data/
+hugufei-workspace/config-2/logs/

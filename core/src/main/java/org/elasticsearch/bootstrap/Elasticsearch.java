@@ -70,10 +70,13 @@ class Elasticsearch extends EnvironmentAwareCommand {
 
     /**
      * Main entry point for starting elasticsearch
+     *
+     * elasticsearch启动入口函数
      */
     public static void main(final String[] args) throws Exception {
         // we want the JVM to think there is a security manager installed so that if internal policy decisions that would be based on the
         // presence of a security manager or lack thereof act as if there is a security manager present (e.g., DNS cache policy)
+        // 1.创建 SecurityManager 安全管理器
         System.setSecurityManager(new SecurityManager() {
             @Override
             public void checkPermission(Permission perm) {
@@ -87,6 +90,7 @@ class Elasticsearch extends EnvironmentAwareCommand {
         }
     }
 
+    // 调用elasticsearch对象的main函数
     static int main(final String[] args, final Elasticsearch elasticsearch, final Terminal terminal) throws Exception {
         return elasticsearch.main(args, terminal);
     }

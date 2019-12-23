@@ -77,6 +77,7 @@ final class Bootstrap {
 
     /** creates a new instance */
     Bootstrap() {
+        // 初始化keepAliveThread线程
         keepAliveThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -87,8 +88,11 @@ final class Bootstrap {
                 }
             }
         }, "elasticsearch[keepAlive/" + Version.CURRENT + "]");
+        // 非守护线程
         keepAliveThread.setDaemon(false);
         // keep this thread alive (non daemon thread) until we shutdown
+        // 在jvm中增加一个关闭的钩子，当jvm关闭的时候，会执行系统中已经设置的所有通过方法addShutdownHook添加的钩子，
+        // 当系统执行完这些钩子后，jvm才会关闭。所以这些钩子可以在jvm关闭的时候进行内存清理、对象销毁等操作。
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -98,6 +102,7 @@ final class Bootstrap {
     }
 
     /** initialize native resources */
+    // 初始化本地资源
     public static void initializeNatives(Path tmpFile, boolean mlockAll, boolean systemCallFilter, boolean ctrlHandler) {
         final Logger logger = Loggers.getLogger(Bootstrap.class);
 
@@ -153,6 +158,7 @@ final class Bootstrap {
         StringHelper.randomId();
     }
 
+    // 在安全管理器安装之前初始化探针
     static void initializeProbes() {
         // Force probes to be loaded
         ProcessProbe.getInstance();
@@ -162,8 +168,8 @@ final class Bootstrap {
 
     private void setup(boolean addShutdownHook, Environment environment) throws BootstrapException {
         Settings settings = environment.settings();
-
         try {
+            // 通过environment生成本地插件控制器
             spawner.spawnNativePluginControllers(environment);
         } catch (IOException e) {
             throw new BootstrapException(e);
@@ -191,6 +197,7 @@ final class Bootstrap {
             }
         }
 
+        // 初始化本地资源
         initializeNatives(
                 environment.tmpFile(),
                 BootstrapSettings.MEMORY_LOCK_SETTING.get(settings),
@@ -198,8 +205,10 @@ final class Bootstrap {
                 BootstrapSettings.CTRLHANDLER_SETTING.get(settings));
 
         // initialize probes before the security manager is installed
+        // 在安全管理器安装之前初始化探针
         initializeProbes();
 
+        // 添加关闭钩子
         if (addShutdownHook) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
@@ -217,18 +226,21 @@ final class Bootstrap {
 
         try {
             // look for jar hell
+            // 检查jar重复
             JarHell.checkJarHell();
         } catch (IOException | URISyntaxException e) {
             throw new BootstrapException(e);
         }
 
         // install SM after natives, shutdown hooks, etc.
+        // 安装安全管理器
         try {
             Security.configure(environment, BootstrapSettings.SECURITY_FILTER_BAD_DEFAULTS_SETTING.get(settings));
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new BootstrapException(e);
         }
 
+        // 通过参数environment实例化Node
         node = new Node(environment) {
             @Override
             protected void validateNodeBeforeAcceptingRequests(
@@ -274,7 +286,9 @@ final class Bootstrap {
     }
 
     private void start() throws NodeValidationException {
+        // 启动已经实例化的Node
         node.start();
+        // 启动keepAliveThread 线程
         keepAliveThread.start();
     }
 

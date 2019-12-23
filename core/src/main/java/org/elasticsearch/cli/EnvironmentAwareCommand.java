@@ -59,6 +59,7 @@ public abstract class EnvironmentAwareCommand extends Command {
             settings.put(kvp.key, kvp.value);
         }
 
+        // 这四个参数可以通过vm参数传过来
         putSystemPropertyIfSettingIsMissing(settings, "path.conf", "es.path.conf");
         putSystemPropertyIfSettingIsMissing(settings, "path.data", "es.path.data");
         putSystemPropertyIfSettingIsMissing(settings, "path.home", "es.path.home");

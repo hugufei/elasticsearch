@@ -1,0 +1,179 @@
+[2019-12-23T17:53:57,567][INFO ][o.e.n.Node               ] [hugufei-node-1] initializing ...
+[2019-12-23T17:53:58,027][INFO ][o.e.e.NodeEnvironment    ] [hugufei-node-1] using [1] data paths, mounts [[项目 (D:)]], net usable_space [114.3gb], net total_space [117.1gb], spins? [unknown], types [NTFS]
+[2019-12-23T17:53:58,027][INFO ][o.e.e.NodeEnvironment    ] [hugufei-node-1] heap size [3.5gb], compressed ordinary object pointers [true]
+[2019-12-23T17:53:58,030][INFO ][o.e.n.Node               ] [hugufei-node-1] node name [hugufei-node-1], node ID [3Q6kqRb0Sv2HodPBTNvncg]
+[2019-12-23T17:53:58,030][INFO ][o.e.n.Node               ] [hugufei-node-1] version[5.4.3-SNAPSHOT], pid[9480], build[Unknown/Unknown], OS[Windows 10/10.0/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_141/25.141-b15]
+[2019-12-23T17:53:58,031][INFO ][o.e.n.Node               ] [hugufei-node-1] JVM arguments [-Des.path.conf=D:\source-code\elasticsearch\hugufei-workspace\config-1, -Des.path.data=D:\source-code\elasticsearch\hugufei-workspace\config-1\data, -Des.path.home=D:\source-code\elasticsearch\hugufei-workspace\elasticsearch-5.4.3, -Des.path.logs=D:\source-code\elasticsearch\hugufei-workspace\config-1\logs, -Des.security.manager.enabled=false, -Dlog4j2.disable.jmx=true, -Dfile.encoding=UTF-8, -Duser.country=CN, -Duser.language=zh, -Duser.variant]
+[2019-12-23T17:53:58,031][WARN ][o.e.n.Node               ] [hugufei-node-1] version [5.4.3-SNAPSHOT] is a pre-release version of Elasticsearch and is not suitable for production
+[2019-12-23T17:54:07,583][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [aggs-matrix-stats]
+[2019-12-23T17:54:07,583][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [ingest-common]
+[2019-12-23T17:54:07,583][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-expression]
+[2019-12-23T17:54:07,583][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-groovy]
+[2019-12-23T17:54:07,584][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-mustache]
+[2019-12-23T17:54:07,584][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-painless]
+[2019-12-23T17:54:07,584][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [percolator]
+[2019-12-23T17:54:07,584][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [reindex]
+[2019-12-23T17:54:07,584][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [transport-netty3]
+[2019-12-23T17:54:07,584][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [transport-netty4]
+[2019-12-23T17:54:07,585][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] no plugins loaded
+[2019-12-23T17:54:10,741][INFO ][o.e.d.DiscoveryModule    ] [hugufei-node-1] using discovery type [zen]
+[2019-12-23T17:54:11,292][INFO ][o.e.n.Node               ] [hugufei-node-1] initialized
+[2019-12-23T17:54:11,292][INFO ][o.e.n.Node               ] [hugufei-node-1] starting ...
+[2019-12-23T17:54:11,358][INFO ][i.n.u.i.PlatformDependent] Your platform does not provide complete low-level API for accessing direct buffers reliably. Unless explicitly requested, heap buffer will always be preferred to avoid potential system instability.
+[2019-12-23T17:54:12,250][INFO ][o.e.t.TransportService   ] [hugufei-node-1] publish_address {127.0.0.1:9300}, bound_addresses {127.0.0.1:9300}, {[::1]:9300}
+[2019-12-23T17:54:12,259][WARN ][o.e.b.BootstrapChecks    ] [hugufei-node-1] initial heap size [268435456] not equal to maximum heap size [4265607168]; this can cause resize pauses and prevents mlockall from locking the entire heap
+[2019-12-23T17:54:15,305][INFO ][o.e.c.s.ClusterService   ] [hugufei-node-1] new_master {hugufei-node-1}{3Q6kqRb0Sv2HodPBTNvncg}{7rvKBhU6SHeniA-aB0AKyA}{localhost}{127.0.0.1:9300}, reason: zen-disco-elected-as-master ([0] nodes joined)
+[2019-12-23T17:54:15,334][INFO ][o.e.h.n.Netty4HttpServerTransport] [hugufei-node-1] publish_address {127.0.0.1:9200}, bound_addresses {127.0.0.1:9200}, {[::1]:9200}
+[2019-12-23T17:54:15,337][INFO ][o.e.n.Node               ] [hugufei-node-1] started
+[2019-12-23T17:54:15,350][INFO ][o.e.g.GatewayService     ] [hugufei-node-1] recovered [0] indices into cluster_state
+[2019-12-23T17:59:11,319][INFO ][o.e.n.Node               ] [hugufei-node-1] initializing ...
+[2019-12-23T17:59:11,691][INFO ][o.e.e.NodeEnvironment    ] [hugufei-node-1] using [1] data paths, mounts [[项目 (D:)]], net usable_space [114.3gb], net total_space [117.1gb], spins? [unknown], types [NTFS]
+[2019-12-23T17:59:11,692][INFO ][o.e.e.NodeEnvironment    ] [hugufei-node-1] heap size [3.5gb], compressed ordinary object pointers [true]
+[2019-12-23T17:59:11,695][INFO ][o.e.n.Node               ] [hugufei-node-1] node name [hugufei-node-1], node ID [3Q6kqRb0Sv2HodPBTNvncg]
+[2019-12-23T17:59:11,695][INFO ][o.e.n.Node               ] [hugufei-node-1] version[5.4.3-SNAPSHOT], pid[2040], build[Unknown/Unknown], OS[Windows 10/10.0/amd64], JVM[Oracle Corporation/Java HotSpot(TM) 64-Bit Server VM/1.8.0_141/25.141-b15]
+[2019-12-23T17:59:11,696][INFO ][o.e.n.Node               ] [hugufei-node-1] JVM arguments [-Des.path.conf=D:\source-code\elasticsearch\hugufei-workspace\config-1, -Des.path.data=D:\source-code\elasticsearch\hugufei-workspace\config-1\data, -Des.path.home=D:\source-code\elasticsearch\hugufei-workspace\elasticsearch-5.4.3, -Des.path.logs=D:\source-code\elasticsearch\hugufei-workspace\config-1\logs, -Des.security.manager.enabled=false, -Dlog4j2.disable.jmx=true, -Dfile.encoding=UTF-8, -Duser.country=CN, -Duser.language=zh, -Duser.variant]
+[2019-12-23T17:59:11,696][WARN ][o.e.n.Node               ] [hugufei-node-1] version [5.4.3-SNAPSHOT] is a pre-release version of Elasticsearch and is not suitable for production
+[2019-12-23T17:59:23,663][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [aggs-matrix-stats]
+[2019-12-23T17:59:23,663][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [ingest-common]
+[2019-12-23T17:59:23,663][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-expression]
+[2019-12-23T17:59:23,663][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-groovy]
+[2019-12-23T17:59:23,663][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-mustache]
+[2019-12-23T17:59:23,664][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [lang-painless]
+[2019-12-23T17:59:23,664][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [percolator]
+[2019-12-23T17:59:23,664][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [reindex]
+[2019-12-23T17:59:23,664][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [transport-netty3]
+[2019-12-23T17:59:23,664][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] loaded module [transport-netty4]
+[2019-12-23T17:59:23,665][INFO ][o.e.p.PluginsService     ] [hugufei-node-1] no plugins loaded
+[2019-12-23T17:59:27,718][INFO ][o.e.d.DiscoveryModule    ] [hugufei-node-1] using discovery type [zen]
+[2019-12-23T17:59:28,295][INFO ][o.e.n.Node               ] [hugufei-node-1] initialized
+[2019-12-23T17:59:28,295][INFO ][o.e.n.Node               ] [hugufei-node-1] starting ...
+[2019-12-23T17:59:28,379][INFO ][i.n.u.i.PlatformDependent] Your platform does not provide complete low-level API for accessing direct buffers reliably. Unless explicitly requested, heap buffer will always be preferred to avoid potential system instability.
+[2019-12-23T17:59:29,281][INFO ][o.e.t.TransportService   ] [hugufei-node-1] publish_address {127.0.0.1:9300}, bound_addresses {127.0.0.1:9300}, {[::1]:9300}
+[2019-12-23T17:59:29,291][WARN ][o.e.b.BootstrapChecks    ] [hugufei-node-1] initial heap size [268435456] not equal to maximum heap size [4265607168]; this can cause resize pauses and prevents mlockall from locking the entire heap
+[2019-12-23T17:59:32,346][INFO ][o.e.c.s.ClusterService   ] [hugufei-node-1] new_master {hugufei-node-1}{3Q6kqRb0Sv2HodPBTNvncg}{3Bzf1miGTNaFVyvW2kXpLg}{localhost}{127.0.0.1:9300}, reason: zen-disco-elected-as-master ([0] nodes joined)
+[2019-12-23T17:59:32,384][INFO ][o.e.h.n.Netty4HttpServerTransport] [hugufei-node-1] publish_address {127.0.0.1:9200}, bound_addresses {127.0.0.1:9200}, {[::1]:9200}
+[2019-12-23T17:59:32,387][INFO ][o.e.n.Node               ] [hugufei-node-1] started
+[2019-12-23T17:59:32,397][INFO ][o.e.g.GatewayService     ] [hugufei-node-1] recovered [0] indices into cluster_state
+[2019-12-23T17:59:38,021][INFO ][o.e.c.s.ClusterService   ] [hugufei-node-1] added {{hugufei-node-2}{Y6jAIhfQSEW4afc0jnCH_A}{d8dlmd8cSWe22SRMWLuNEA}{localhost}{127.0.0.1:9301},}, reason: zen-disco-node-join[{hugufei-node-2}{Y6jAIhfQSEW4afc0jnCH_A}{d8dlmd8cSWe22SRMWLuNEA}{localhost}{127.0.0.1:9301}]
+[2019-12-23T17:59:38,068][WARN ][o.e.d.z.ElectMasterService] [hugufei-node-1] value for setting "discovery.zen.minimum_master_nodes" is too low. This can result in data loss! Please set it to at least a quorum of master-eligible nodes (current value: [1], total number of master-eligible nodes used for publishing in this round: [2])
+[2019-12-23T18:19:53,780][WARN ][r.suppressed             ] path: /productindex, params: {index=productindex}
+java.lang.ClassCastException: java.util.ArrayList cannot be cast to java.util.Map
+	at org.elasticsearch.action.admin.indices.create.CreateIndexRequest.source(CreateIndexRequest.java:459) ~[main/:?]
+	at org.elasticsearch.action.admin.indices.create.CreateIndexRequest.source(CreateIndexRequest.java:436) ~[main/:?]
+	at org.elasticsearch.rest.action.admin.indices.RestCreateIndexAction.prepareRequest(RestCreateIndexAction.java:45) ~[main/:?]
+	at org.elasticsearch.rest.BaseRestHandler.handleRequest(BaseRestHandler.java:64) ~[main/:?]
+	at org.elasticsearch.rest.RestController.dispatchRequest(RestController.java:260) ~[main/:?]
+	at org.elasticsearch.rest.RestController.dispatchRequest(RestController.java:199) [main/:?]
+	at org.elasticsearch.http.netty4.Netty4HttpServerTransport.dispatchRequest(Netty4HttpServerTransport.java:505) [transport-netty4-5.4.3.jar:5.4.3]
+	at org.elasticsearch.http.netty4.Netty4HttpRequestHandler.channelRead0(Netty4HttpRequestHandler.java:72) [transport-netty4-5.4.3.jar:5.4.3]
+	at io.netty.channel.SimpleChannelInboundHandler.channelRead(SimpleChannelInboundHandler.java:105) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at org.elasticsearch.http.netty4.pipelining.HttpPipeliningHandler.channelRead(HttpPipeliningHandler.java:63) [transport-netty4-5.4.3.jar:5.4.3]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at org.elasticsearch.http.netty4.cors.Netty4CorsHandler.channelRead(Netty4CorsHandler.java:76) [transport-netty4-5.4.3.jar:5.4.3]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageCodec.channelRead(MessageToMessageCodec.java:111) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:310) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:284) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.ChannelInboundHandlerAdapter.channelRead(ChannelInboundHandlerAdapter.java:86) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1334) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:926) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:134) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:644) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysPlain(NioEventLoop.java:544) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:498) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:458) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:858) [netty-common-4.1.11.Final.jar:4.1.11.Final]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_141]
+[2019-12-23T18:20:22,709][WARN ][r.suppressed             ] path: /productindex, params: {index=productindex}
+java.lang.ClassCastException: java.util.ArrayList cannot be cast to java.util.Map
+	at org.elasticsearch.action.admin.indices.create.CreateIndexRequest.source(CreateIndexRequest.java:459) ~[main/:?]
+	at org.elasticsearch.action.admin.indices.create.CreateIndexRequest.source(CreateIndexRequest.java:436) ~[main/:?]
+	at org.elasticsearch.rest.action.admin.indices.RestCreateIndexAction.prepareRequest(RestCreateIndexAction.java:45) ~[main/:?]
+	at org.elasticsearch.rest.BaseRestHandler.handleRequest(BaseRestHandler.java:64) ~[main/:?]
+	at org.elasticsearch.rest.RestController.dispatchRequest(RestController.java:260) ~[main/:?]
+	at org.elasticsearch.rest.RestController.dispatchRequest(RestController.java:199) [main/:?]
+	at org.elasticsearch.http.netty4.Netty4HttpServerTransport.dispatchRequest(Netty4HttpServerTransport.java:505) [transport-netty4-5.4.3.jar:5.4.3]
+	at org.elasticsearch.http.netty4.Netty4HttpRequestHandler.channelRead0(Netty4HttpRequestHandler.java:72) [transport-netty4-5.4.3.jar:5.4.3]
+	at io.netty.channel.SimpleChannelInboundHandler.channelRead(SimpleChannelInboundHandler.java:105) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at org.elasticsearch.http.netty4.pipelining.HttpPipeliningHandler.channelRead(HttpPipeliningHandler.java:63) [transport-netty4-5.4.3.jar:5.4.3]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at org.elasticsearch.http.netty4.cors.Netty4CorsHandler.channelRead(Netty4CorsHandler.java:76) [transport-netty4-5.4.3.jar:5.4.3]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageCodec.channelRead(MessageToMessageCodec.java:111) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:310) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:284) [netty-codec-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.ChannelInboundHandlerAdapter.channelRead(ChannelInboundHandlerAdapter.java:86) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:340) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1334) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:362) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:348) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:926) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:134) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:644) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysPlain(NioEventLoop.java:544) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:498) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:458) [netty-transport-4.1.11.Final.jar:4.1.11.Final]
+	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:858) [netty-common-4.1.11.Final.jar:4.1.11.Final]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_141]
+[2019-12-23T18:24:30,801][INFO ][o.e.c.m.MetaDataCreateIndexService] [hugufei-node-1] [productindex] creating index, cause [api], templates [], shards [1]/[1], mappings [productindex]
+[2019-12-23T18:24:31,659][INFO ][o.e.c.r.a.AllocationService] [hugufei-node-1] Cluster health status changed from [YELLOW] to [GREEN] (reason: [shards started [[productindex][0]] ...]).
+[2019-12-23T18:28:42,432][INFO ][o.e.c.m.MetaDataDeleteIndexService] [hugufei-node-1] [productindex/KXRY02bGSy68RFahziDpYA] deleting index
+[2019-12-23T18:28:45,168][INFO ][o.e.c.m.MetaDataCreateIndexService] [hugufei-node-1] [productindex] creating index, cause [api], templates [], shards [1]/[1], mappings [productindex]
+[2019-12-23T18:28:45,305][INFO ][o.e.c.r.a.AllocationService] [hugufei-node-1] Cluster health status changed from [YELLOW] to [GREEN] (reason: [shards started [[productindex][0]] ...]).
+[2019-12-23T18:28:49,195][INFO ][o.e.c.m.MetaDataDeleteIndexService] [hugufei-node-1] [productindex/epqoicbURBS2YhWixPobQQ] deleting index
+[2019-12-23T18:32:09,349][INFO ][o.e.c.m.MetaDataCreateIndexService] [hugufei-node-1] [productindex] creating index, cause [api], templates [], shards [1]/[1], mappings [productindex]
+[2019-12-23T18:32:09,487][INFO ][o.e.c.r.a.AllocationService] [hugufei-node-1] Cluster health status changed from [YELLOW] to [GREEN] (reason: [shards started [[productindex][0]] ...]).
+[2019-12-23T18:32:52,197][INFO ][o.e.c.m.MetaDataUpdateSettingsService] [hugufei-node-1] updating number_of_replicas to [0] for indices [productindex]
+[2019-12-23T18:36:00,781][INFO ][o.e.c.m.MetaDataUpdateSettingsService] [hugufei-node-1] updating number_of_replicas to [1] for indices [productindex]
+[2019-12-23T18:36:00,889][INFO ][o.e.c.r.a.AllocationService] [hugufei-node-1] Cluster health status changed from [YELLOW] to [GREEN] (reason: [shards started [[productindex][0]] ...]).

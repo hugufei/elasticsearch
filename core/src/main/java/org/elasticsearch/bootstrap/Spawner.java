@@ -56,7 +56,10 @@ final class Spawner implements Closeable {
     }
 
     /**
+     *
      * Spawns the native controllers for each plugin
+     *
+     * 通过environment生成本地插件控制器
      *
      * @param environment the node environment
      * @throws IOException if an I/O error occurs reading the plugins or spawning a native process

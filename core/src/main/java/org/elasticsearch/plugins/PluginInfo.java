@@ -109,6 +109,7 @@ public class PluginInfo implements Writeable, ToXContent {
      * @throws IOException if an I/O exception occurred reading the plugin descriptor
      */
     public static PluginInfo readFromProperties(final Path path) throws IOException {
+        // 读取插件文件夹下的plugin-descriptor.properties文件
         final Path descriptor = path.resolve(ES_PLUGIN_PROPERTIES);
         final Properties props = new Properties();
         try (InputStream stream = Files.newInputStream(descriptor)) {

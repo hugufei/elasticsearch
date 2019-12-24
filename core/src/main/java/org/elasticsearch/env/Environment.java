@@ -48,21 +48,27 @@ import static org.elasticsearch.common.Strings.cleanPath;
 // TODO: move PathUtils to be package-private here instead of
 // public+forbidden api!
 public class Environment {
+    // path.home
     public static final Setting<String> PATH_HOME_SETTING = Setting.simpleString("path.home", Property.NodeScope);
+    // default.path.conf
     public static final Setting<String> DEFAULT_PATH_CONF_SETTING = Setting.simpleString("default.path.conf", Property.NodeScope);
-    public static final Setting<String> PATH_CONF_SETTING =
-            new Setting<>("path.conf", DEFAULT_PATH_CONF_SETTING, Function.identity(), Property.NodeScope);
+    // path.conf
+    public static final Setting<String> PATH_CONF_SETTING = new Setting<>("path.conf", DEFAULT_PATH_CONF_SETTING, Function.identity(), Property.NodeScope);
+    // path.scripts
     public static final Setting<String> PATH_SCRIPTS_SETTING = Setting.simpleString("path.scripts", Property.NodeScope);
-    public static final Setting<List<String>> DEFAULT_PATH_DATA_SETTING =
-            Setting.listSetting("default.path.data", Collections.emptyList(), Function.identity(), Property.NodeScope);
-    public static final Setting<List<String>> PATH_DATA_SETTING =
-            Setting.listSetting("path.data", DEFAULT_PATH_DATA_SETTING, Function.identity(), Property.NodeScope);
+    // default.path.data
+    public static final Setting<List<String>> DEFAULT_PATH_DATA_SETTING =  Setting.listSetting("default.path.data", Collections.emptyList(), Function.identity(), Property.NodeScope);
+    // path.data
+    public static final Setting<List<String>> PATH_DATA_SETTING = Setting.listSetting("path.data", DEFAULT_PATH_DATA_SETTING, Function.identity(), Property.NodeScope);
+    // default.path.logs
     public static final Setting<String> DEFAULT_PATH_LOGS_SETTING = Setting.simpleString("default.path.logs", Property.NodeScope);
-    public static final Setting<String> PATH_LOGS_SETTING =
-            new Setting<>("path.logs", DEFAULT_PATH_LOGS_SETTING, Function.identity(), Property.NodeScope);
-    public static final Setting<List<String>> PATH_REPO_SETTING =
-        Setting.listSetting("path.repo", Collections.emptyList(), Function.identity(), Property.NodeScope);
+    // path.logs
+    public static final Setting<String> PATH_LOGS_SETTING = new Setting<>("path.logs", DEFAULT_PATH_LOGS_SETTING, Function.identity(), Property.NodeScope);
+    // path.repo
+    public static final Setting<List<String>> PATH_REPO_SETTING =  Setting.listSetting("path.repo", Collections.emptyList(), Function.identity(), Property.NodeScope);
+    // path.shared_data
     public static final Setting<String> PATH_SHARED_DATA_SETTING = Setting.simpleString("path.shared_data", Property.NodeScope);
+    // pidfile
     public static final Setting<String> PIDFILE_SETTING = Setting.simpleString("pidfile", Property.NodeScope);
 
     private final Settings settings;

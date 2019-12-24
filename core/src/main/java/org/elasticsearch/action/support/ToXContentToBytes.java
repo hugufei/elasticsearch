@@ -30,6 +30,8 @@ import org.elasticsearch.common.xcontent.XContentType;
 
 /**
  * Base class for {@link ToXContent} implementation that also support conversion to {@link BytesReference} for serialization purposes
+ *
+ * 支持将对象序列化为BytesReference，所以该类是支持序列化的。
  */
 public abstract class ToXContentToBytes implements ToXContent {
 

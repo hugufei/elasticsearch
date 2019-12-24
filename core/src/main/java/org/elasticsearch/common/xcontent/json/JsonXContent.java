@@ -40,6 +40,8 @@ import java.util.Set;
 
 /**
  * A JSON based content implementation using Jackson.
+ *
+ * 是ElasticSearch响应cat API请求时，指定响应返回数据格式（json）用到的模块，在设置http请求的x-content内容时使用到。
  */
 public class JsonXContent implements XContent {
 

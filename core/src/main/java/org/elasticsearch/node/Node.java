@@ -166,37 +166,47 @@ import static java.util.stream.Collectors.toList;
 /**
  * A node represent a node within a cluster (<tt>cluster.name</tt>). The {@link #client()} can be used
  * in order to use a {@link Client} to perform actions/operations against the cluster.
+ *
+ * Node是通过NodeBuilder来实例化的，使用google的注入框架Guice的Injector进行注入与获取实例。
+ * elasticsearch里面的组件都是用上面的方法进行模块化管理，elasticsearch对guice进行了封装，通过ModulesBuilder类构建elasticsearch的模块
+ *
  */
 public class Node implements Closeable {
 
-
-    public static final Setting<Boolean> WRITE_PORTS_FILE_SETTING =
-        Setting.boolSetting("node.portsfile", false, Property.NodeScope);
+    // 用于控制是否将文件写入到包含给定传输类型端口的日志目录中
+    public static final Setting<Boolean> WRITE_PORTS_FILE_SETTING = Setting.boolSetting("node.portsfile", false, Property.NodeScope);
+    // 该node能否做为data节点
     public static final Setting<Boolean> NODE_DATA_SETTING = Setting.boolSetting("node.data", true, Property.NodeScope);
-    public static final Setting<Boolean> NODE_MASTER_SETTING =
-        Setting.boolSetting("node.master", true, Property.NodeScope);
-    public static final Setting<Boolean> NODE_INGEST_SETTING =
-        Setting.boolSetting("node.ingest", true, Property.NodeScope);
+    // 该node能否做为master节点
+    public static final Setting<Boolean> NODE_MASTER_SETTING = Setting.boolSetting("node.master", true, Property.NodeScope);
+    // 该node能否做为ingest节点
+    public static final Setting<Boolean> NODE_INGEST_SETTING = Setting.boolSetting("node.ingest", true, Property.NodeScope);
 
     /**
-    * controls whether the node is allowed to persist things like metadata to disk
-    * Note that this does not control whether the node stores actual indices (see
-    * {@link #NODE_DATA_SETTING}). However, if this is false, {@link #NODE_DATA_SETTING}
-    * and {@link #NODE_MASTER_SETTING} must also be false.
-    *
-    */
+     * controls whether the node is allowed to persist things like metadata to disk
+     * Note that this does not control whether the node stores actual indices (see
+     * {@link #NODE_DATA_SETTING}). However, if this is false, {@link #NODE_DATA_SETTING}
+     * and {@link #NODE_MASTER_SETTING} must also be false.
+     */
+    // 控制节点是否需要持久化元数据到磁盘，这和data node没有必然联系，但是如果local_storage为false，node.data和node.master的值必须为false
     public static final Setting<Boolean> NODE_LOCAL_STORAGE_SETTING = Setting.boolSetting("node.local_storage", true, Property.NodeScope);
+
+    // 节点名称
     public static final Setting<String> NODE_NAME_SETTING = Setting.simpleString("node.name", Property.NodeScope);
+
+    // 添加gateway，zone，rack_id等参数key
     public static final Setting<Settings> NODE_ATTRIBUTES = Setting.groupSetting("node.attr.", (settings) -> {
         Map<String, String> settingsMap = settings.getAsMap();
         for (Map.Entry<String, String> entry : settingsMap.entrySet()) {
             String value = entry.getValue();
             if (Character.isWhitespace(value.charAt(0)) || Character.isWhitespace(value.charAt(value.length() - 1))) {
                 throw new IllegalArgumentException("node.attr." + entry.getKey() + " cannot have leading or trailing whitespace " +
-                                                       "[" + value + "]");
+                    "[" + value + "]");
             }
         }
     }, Property.NodeScope);
+
+    // 断路器类型，提供参数有hierarchy，none两种，主要是防止内存溢出后elasticsearch宕机
     public static final Setting<String> BREAKER_TYPE_KEY = new Setting<>("indices.breaker.type", "hierarchy", (s) -> {
         switch (s) {
             case "hierarchy":
@@ -209,6 +219,7 @@ public class Node implements Closeable {
 
     /**
      * Adds a default node name to the given setting, if it doesn't already exist
+     *
      * @return the given setting if node name is already set, or a new copy with a default node name set.
      */
     public static final Settings addNodeNameIfNeeded(Settings settings, final String nodeId) {
@@ -242,23 +253,26 @@ public class Node implements Closeable {
         this(environment, Collections.emptyList());
     }
 
+    // 最重要的构造方法
     protected Node(final Environment environment, Collection<Class<? extends Plugin>> classpathPlugins) {
         final List<Closeable> resourcesToClose = new ArrayList<>(); // register everything we need to release in the case of an error
         boolean success = false;
         {
             // use temp logger just to say we are starting. we can't use it later on because the node name might not be set
+            // 用当前节点名称设定临时Logger（因为后续可能节点名称会变动所以设定成临时Logger）
             Logger logger = Loggers.getLogger(Node.class, NODE_NAME_SETTING.get(environment.settings()));
             logger.info("initializing ...");
 
         }
         try {
-            Settings tmpSettings = Settings.builder().put(environment.settings())
-                .put(Client.CLIENT_TYPE_SETTING_S.getKey(), CLIENT_TYPE).build();
+            // 根据参数environment中的settings变量构造新的settings实例，添加默认的CLIENT_TYPE="node"值。
+            Settings tmpSettings = Settings.builder().put(environment.settings()).put(Client.CLIENT_TYPE_SETTING_S.getKey(), CLIENT_TYPE).build();
 
             tmpSettings = TribeService.processSettings(tmpSettings);
 
             // create the node environment as soon as possible, to recover the node id and enable logging
             try {
+                // 用生成的新的settings实例和environment参数构建新的节点环境（NodeEnvironment）
                 nodeEnvironment = new NodeEnvironment(tmpSettings, environment);
                 resourcesToClose.add(nodeEnvironment);
             } catch (IOException ex) {
@@ -307,8 +321,11 @@ public class Node implements Closeable {
                     JsonXContent.JSON_ALLOW_UNQUOTED_FIELD_NAMES);
             }
 
+            // 构造plugins
             this.pluginsService = new PluginsService(tmpSettings, environment.modulesFile(), environment.pluginsFile(), classpathPlugins);
             this.settings = pluginsService.updatedSettings();
+
+            // 加载LocalNodeFactory
             localNodeFactory = new LocalNodeFactory(settings, nodeEnvironment.nodeId());
 
             // create the environment based on the finalized (processed) view of the settings
@@ -316,9 +333,8 @@ public class Node implements Closeable {
             this.environment = new Environment(this.settings);
             Environment.assertEquivalent(environment, this.environment);
 
-
+            // 构造ThreadPool，接收参数为setting和plugins的builder
             final List<ExecutorBuilder<?>> executorBuilders = pluginsService.getExecutorBuilders(settings);
-
             final ThreadPool threadPool = new ThreadPool(settings, executorBuilders.toArray(new ExecutorBuilder[0]));
             resourcesToClose.add(() -> ThreadPool.terminate(threadPool, 10, TimeUnit.SECONDS));
             // adds the context to the DeprecationLogger so that it does not need to be injected everywhere
@@ -334,6 +350,8 @@ public class Node implements Closeable {
             }
             client = new NodeClient(settings, threadPool);
             final ResourceWatcherService resourceWatcherService = new ResourceWatcherService(settings, threadPool);
+
+            // 构造scriptModule，analysisModule，settingsModule
             final ScriptModule scriptModule = ScriptModule.create(settings, this.environment, resourceWatcherService,
                 pluginsService.filterPlugins(ScriptPlugin.class));
             AnalysisModule analysisModule = new AnalysisModule(this.environment, pluginsService.filterPlugins(AnalysisPlugin.class));
@@ -343,14 +361,20 @@ public class Node implements Closeable {
             final SettingsModule settingsModule = new SettingsModule(this.settings, additionalSettings, additionalSettingsFilter);
             scriptModule.registerClusterSettingsListeners(settingsModule.getClusterSettings());
             resourcesToClose.add(resourceWatcherService);
+
+            // 通过pluginsService构造NetworkService
             final NetworkService networkService = new NetworkService(settings,
                 getCustomNameResolvers(pluginsService.filterPlugins(DiscoveryPlugin.class)));
+            // 通过pluginsService构造ClusterPugins
             final ClusterService clusterService = new ClusterService(settings, settingsModule.getClusterSettings(), threadPool,
                 localNodeFactory::getNode);
             clusterService.addListener(scriptModule.getScriptService());
             resourcesToClose.add(clusterService);
+            // 构造IngestService
             final IngestService ingestService = new IngestService(settings, threadPool, this.environment,
                 scriptModule.getScriptService(), analysisModule.getAnalysisRegistry(), pluginsService.filterPlugins(IngestPlugin.class));
+
+            // 构造ClusterInfoService
             final ClusterInfoService clusterInfoService = newClusterInfoService(settings, clusterService, threadPool, client);
 
             ModulesBuilder modules = new ModulesBuilder();
@@ -366,13 +390,15 @@ public class Node implements Closeable {
             IndicesModule indicesModule = new IndicesModule(pluginsService.filterPlugins(MapperPlugin.class));
             modules.add(indicesModule);
 
+            // 通过pluginsService构造SearchModule
             SearchModule searchModule = new SearchModule(settings, false, pluginsService.filterPlugins(SearchPlugin.class));
-            CircuitBreakerService circuitBreakerService = createCircuitBreakerService(settingsModule.getSettings(),
-                settingsModule.getClusterSettings());
+            // 通过settingsModule构造CircuitBreakerService
+            CircuitBreakerService circuitBreakerService = createCircuitBreakerService(settingsModule.getSettings(),settingsModule.getClusterSettings());
             resourcesToClose.add(circuitBreakerService);
+            // 构造ActionModule
             ActionModule actionModule = new ActionModule(false, settings, clusterModule.getIndexNameExpressionResolver(),
-                    settingsModule.getIndexScopedSettings(), settingsModule.getClusterSettings(), settingsModule.getSettingsFilter(),
-                    threadPool, pluginsService.filterPlugins(ActionPlugin.class), client, circuitBreakerService);
+                settingsModule.getIndexScopedSettings(), settingsModule.getClusterSettings(), settingsModule.getSettingsFilter(),
+                threadPool, pluginsService.filterPlugins(ActionPlugin.class), client, circuitBreakerService);
             modules.add(actionModule);
             modules.add(new GatewayModule());
 
@@ -389,6 +415,8 @@ public class Node implements Closeable {
                 ClusterModule.getNamedWriteables().stream())
                 .flatMap(Function.identity()).collect(Collectors.toList());
             final NamedWriteableRegistry namedWriteableRegistry = new NamedWriteableRegistry(namedWriteables);
+
+            // 构造NamedXContentRegistry
             NamedXContentRegistry xContentRegistry = new NamedXContentRegistry(Stream.of(
                 NetworkModule.getNamedXContents().stream(),
                 searchModule.getNamedXContents().stream(),
@@ -400,7 +428,11 @@ public class Node implements Closeable {
                 s -> newTribeClientNode(s, classpathPlugins));
             resourcesToClose.add(tribeService);
             modules.add(new RepositoriesModule(this.environment, pluginsService.filterPlugins(RepositoryPlugin.class), xContentRegistry));
+
+            // 构造MetaStateService
             final MetaStateService metaStateService = new MetaStateService(settings, nodeEnvironment, xContentRegistry);
+
+            // 构造IndicesService
             final IndicesService indicesService = new IndicesService(settings, pluginsService, nodeEnvironment, xContentRegistry,
                 settingsModule.getClusterSettings(), analysisModule.getAnalysisRegistry(),
                 clusterModule.getIndexNameExpressionResolver(), indicesModule.getMapperRegistry(), namedWriteableRegistry,
@@ -409,20 +441,30 @@ public class Node implements Closeable {
 
             Collection<Object> pluginComponents = pluginsService.filterPlugins(Plugin.class).stream()
                 .flatMap(p -> p.createComponents(client, clusterService, threadPool, resourceWatcherService,
-                                                 scriptModule.getScriptService(), xContentRegistry).stream())
+                    scriptModule.getScriptService(), xContentRegistry).stream())
                 .collect(Collectors.toList());
             Collection<UnaryOperator<Map<String, MetaData.Custom>>> customMetaDataUpgraders =
                 pluginsService.filterPlugins(Plugin.class).stream()
-                .map(Plugin::getCustomMetaDataUpgrader)
-                .collect(Collectors.toList());
+                    .map(Plugin::getCustomMetaDataUpgrader)
+                    .collect(Collectors.toList());
+
+            // 构造RestController
             final RestController restController = actionModule.getRestController();
+
+            // 构造NetworkModule
             final NetworkModule networkModule = new NetworkModule(settings, false, pluginsService.filterPlugins(NetworkPlugin.class),
-                    threadPool, bigArrays, circuitBreakerService, namedWriteableRegistry, xContentRegistry, networkService, restController);
+                threadPool, bigArrays, circuitBreakerService, namedWriteableRegistry, xContentRegistry, networkService, restController);
+
+            // 构造MetaDataUpgrader
             final MetaDataUpgrader metaDataUpgrader = new MetaDataUpgrader(customMetaDataUpgraders);
+
+            // 构造TransportService
             final Transport transport = networkModule.getTransportSupplier().get();
             final TransportService transportService = newTransportService(settings, transport, threadPool,
                 networkModule.getTransportInterceptor(), localNodeFactory, settingsModule.getClusterSettings());
-            final SearchTransportService searchTransportService =  new SearchTransportService(settings,
+
+            // 构造SearchTransportService
+            final SearchTransportService searchTransportService = new SearchTransportService(settings,
                 settingsModule.getClusterSettings(), transportService);
             final Consumer<Binder> httpBind;
             final HttpServerTransport httpServerTransport;
@@ -437,12 +479,17 @@ public class Node implements Closeable {
                 };
                 httpServerTransport = null;
             }
+
+            // 构造DiscoveryModule
             final DiscoveryModule discoveryModule = new DiscoveryModule(this.settings, threadPool, transportService,
                 namedWriteableRegistry, networkService, clusterService, pluginsService.filterPlugins(DiscoveryPlugin.class));
+
+            // 构造NodeService
             NodeService nodeService = new NodeService(settings, threadPool, monitorService, discoveryModule.getDiscovery(),
                 transportService, indicesService, pluginsService, circuitBreakerService, scriptModule.getScriptService(),
                 httpServerTransport, ingestService, clusterService, settingsModule.getSettingsFilter());
 
+            // 向构造好的ModuleBuilder中添加所有需要的服务
             modules.add(b -> {
                     b.bind(NodeService.class).toInstance(nodeService);
                     b.bind(NamedXContentRegistry.class).toInstance(xContentRegistry);
@@ -467,7 +514,7 @@ public class Node implements Closeable {
                         threadPool, scriptModule.getScriptService(), bigArrays, searchModule.getFetchPhase()));
                     b.bind(SearchTransportService.class).toInstance(searchTransportService);
                     b.bind(SearchPhaseController.class).toInstance(new SearchPhaseController(settings, bigArrays,
-                            scriptModule.getScriptService()));
+                        scriptModule.getScriptService()));
                     b.bind(Transport.class).toInstance(transport);
                     b.bind(TransportService.class).toInstance(transportService);
                     b.bind(NetworkService.class).toInstance(networkService);
@@ -480,25 +527,30 @@ public class Node implements Closeable {
                         RecoverySettings recoverySettings = new RecoverySettings(settings, settingsModule.getClusterSettings());
                         processRecoverySettings(settingsModule.getClusterSettings(), recoverySettings);
                         b.bind(PeerRecoverySourceService.class).toInstance(new PeerRecoverySourceService(settings, transportService,
-                                indicesService, recoverySettings, clusterService));
+                            indicesService, recoverySettings, clusterService));
                         b.bind(PeerRecoveryTargetService.class).toInstance(new PeerRecoveryTargetService(settings, threadPool,
-                                transportService, recoverySettings, clusterService));
+                            transportService, recoverySettings, clusterService));
                     }
                     httpBind.accept(b);
                     pluginComponents.stream().forEach(p -> b.bind((Class) p.getClass()).toInstance(p));
                 }
             );
+
+            // 通过ModuleBuilder得到Guice注入类
             injector = modules.createInjector();
 
+            // 构件LifecycleComponent集合
             List<LifecycleComponent> pluginLifecycleComponents = pluginComponents.stream()
                 .filter(p -> p instanceof LifecycleComponent)
                 .map(p -> (LifecycleComponent) p).collect(Collectors.toList());
-            pluginLifecycleComponents.addAll(pluginsService.getGuiceServiceClasses().stream()
-                .map(injector::getInstance).collect(Collectors.toList()));
+            pluginLifecycleComponents.addAll(pluginsService.getGuiceServiceClasses().stream().map(injector::getInstance).collect(Collectors.toList()));
             resourcesToClose.addAll(pluginLifecycleComponents);
             this.pluginLifecycleComponents = Collections.unmodifiableList(pluginLifecycleComponents);
-            client.initialize(injector.getInstance(new Key<Map<GenericAction, TransportAction>>() {}),
-                    () -> clusterService.localNode().getId());
+
+            // 初始化NodeClient
+            client.initialize(injector.getInstance(new Key<Map<GenericAction, TransportAction>>() {
+                }),
+                () -> clusterService.localNode().getId());
 
             if (NetworkModule.HTTP_ENABLED.get(settings)) {
                 logger.debug("initializing HTTP handlers ...");
@@ -525,7 +577,7 @@ public class Node implements Closeable {
      * @throws IOException if an I/O exception occurs reading the directory structure
      */
     static void checkForIndexDataInDefaultPathData(
-            final Settings settings, final NodeEnvironment nodeEnv, final Logger logger) throws IOException {
+        final Settings settings, final NodeEnvironment nodeEnv, final Logger logger) throws IOException {
         if (!Environment.PATH_DATA_SETTING.exists(settings) || !Environment.DEFAULT_PATH_DATA_SETTING.exists(settings)) {
             return;
         }
@@ -551,10 +603,10 @@ public class Node implements Closeable {
             logger.error("detected index data in default.path.data [{}] where there should not be any", nodePath.indicesPath);
             for (final String availableIndexFolder : availableIndexFolders) {
                 logger.info(
-                        "index folder [{}] in default.path.data [{}] must be moved to any of {}",
-                        availableIndexFolder,
-                        nodePath.indicesPath,
-                        Arrays.stream(nodeEnv.nodePaths()).map(np -> np.indicesPath).collect(Collectors.toList()));
+                    "index folder [{}] in default.path.data [{}] must be moved to any of {}",
+                    availableIndexFolder,
+                    nodePath.indicesPath,
+                    Arrays.stream(nodeEnv.nodePaths()).map(np -> np.indicesPath).collect(Collectors.toList()));
             }
         }
 
@@ -563,9 +615,9 @@ public class Node implements Closeable {
         }
 
         final String message = String.format(
-                Locale.ROOT,
-                "detected index data in default.path.data %s where there should not be any; check the logs for details",
-                Environment.DEFAULT_PATH_DATA_SETTING.get(settings));
+            Locale.ROOT,
+            "detected index data in default.path.data %s where there should not be any; check the logs for details",
+            Environment.DEFAULT_PATH_DATA_SETTING.get(settings));
         throw new IllegalStateException(message);
     }
 
@@ -638,6 +690,8 @@ public class Node implements Closeable {
 
     /**
      * Start the node. If the node is already started, this method is no-op.
+     *
+     * Node节点启动
      */
     public Node start() throws NodeValidationException {
         if (!lifecycle.moveToStarted()) {
@@ -709,7 +763,9 @@ public class Node implements Closeable {
                 final CountDownLatch latch = new CountDownLatch(1);
                 observer.waitForNextChange(new ClusterStateObserver.Listener() {
                     @Override
-                    public void onNewClusterState(ClusterState state) { latch.countDown(); }
+                    public void onNewClusterState(ClusterState state) {
+                        latch.countDown();
+                    }
 
                     @Override
                     public void onClusterServiceClose() {
@@ -915,7 +971,9 @@ public class Node implements Closeable {
         final BoundTransportAddress boundTransportAddress, List<BootstrapCheck> bootstrapChecks) throws NodeValidationException {
     }
 
-    /** Writes a file to the logs dir containing the ports for the given transport type */
+    /**
+     * Writes a file to the logs dir containing the ports for the given transport type
+     */
     private void writePortsFile(String type, BoundTransportAddress boundAddress) {
         Path tmpPortsFile = environment.logsFile().resolve(type + ".ports.tmp");
         try (BufferedWriter writer = Files.newBufferedWriter(tmpPortsFile, Charset.forName("UTF-8"))) {
@@ -947,6 +1005,7 @@ public class Node implements Closeable {
 
     /**
      * Creates a new {@link CircuitBreakerService} based on the settings provided.
+     *
      * @see #BREAKER_TYPE_KEY
      */
     public static CircuitBreakerService createCircuitBreakerService(Settings settings, ClusterSettings clusterSettings) {
@@ -979,6 +1038,7 @@ public class Node implements Closeable {
 
     /**
      * Get Custom Name Resolvers list based on a Discovery Plugins list
+     *
      * @param discoveryPlugins Discovery plugins list
      */
     private List<NetworkService.CustomNameResolver> getCustomNameResolvers(List<DiscoveryPlugin> discoveryPlugins) {
@@ -992,12 +1052,16 @@ public class Node implements Closeable {
         return customNameResolvers;
     }
 
-    /** Constructs an internal node used as a client into a cluster fronted by this tribe node. */
+    /**
+     * Constructs an internal node used as a client into a cluster fronted by this tribe node.
+     */
     protected Node newTribeClientNode(Settings settings, Collection<Class<? extends Plugin>> classpathPlugins) {
         return new Node(new Environment(settings), classpathPlugins);
     }
 
-    /** Constructs a ClusterInfoService which may be mocked for tests. */
+    /**
+     * Constructs a ClusterInfoService which may be mocked for tests.
+     */
     protected ClusterInfoService newClusterInfoService(Settings settings, ClusterService clusterService,
                                                        ThreadPool threadPool, NodeClient client) {
         return new InternalClusterInfoService(settings, clusterService, threadPool, client);

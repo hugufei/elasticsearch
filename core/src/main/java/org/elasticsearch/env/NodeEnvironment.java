@@ -154,6 +154,8 @@ public final class NodeEnvironment  implements Closeable {
 
     /**
      * Maximum number of data nodes that should run in an environment.
+     *
+     * 这个配置限制了单节点上可以开启的ES存储实例的个数，如果我们需要开多个实例，就要把这个配置写到配置文件中，并为这个配置赋值为2或者更高，这样的话ElasticSearch就会用for循环创建多个NodePath，而不只是创建唯一的那个ID为0的实例。
      */
     public static final Setting<Integer> MAX_LOCAL_STORAGE_NODES_SETTING = Setting.intSetting("node.max_local_storage_nodes", 1, 1,
         Property.NodeScope);
@@ -183,6 +185,7 @@ public final class NodeEnvironment  implements Closeable {
     public static final String INDICES_FOLDER = "indices";
     public static final String NODE_LOCK_FILENAME = "node.lock";
 
+    // NodeEnvironment主要是针对单个节点的包含所有数据路径的构件对象
     public NodeEnvironment(Settings settings, Environment environment) throws IOException {
 
         if (!DiscoveryNode.nodeRequiresLocalStorage(settings)) {
@@ -206,6 +209,7 @@ public final class NodeEnvironment  implements Closeable {
             int nodeLockId = -1;
             IOException lastException = null;
             int maxLocalStorageNodes = MAX_LOCAL_STORAGE_NODES_SETTING.get(settings);
+            // 通过累加possibleLockId的值来新增数据存储的路径,这个值是从0开始的，所以才会在ElasticSearch的数据存储页面生成0的文件夹
             for (int possibleLockId = 0; possibleLockId < maxLocalStorageNodes; possibleLockId++) {
                 for (int dirIndex = 0; dirIndex < environment.dataFiles().length; dirIndex++) {
                     Path dataDirWithClusterName = environment.dataWithClusterFiles()[dirIndex];
@@ -220,9 +224,18 @@ public final class NodeEnvironment  implements Closeable {
                     Path dir = resolveNodePath(dataDir, possibleLockId);
                     Files.createDirectories(dir);
 
+                    // 获取存储索引的目录，FSDirectory是lucene中对文件系统目录的操作
+                    // 第一个参数java.nio.file.Path：dir这个参数是NIO的一个类Path，接收字符串参数创建的。
+                    // 第二个参数org.apache.lucene.store.LockFactory：这个参数是Lucene中的索引锁。
+                    // ( 因为Lucene必须知道一份索引是否已经被某个IndexWriter打开，所以必须使用锁的机制来保证写索引的同步性。)
+                    // ( 首先大家要明确一个问题，在ElasticSearch异常退出，或是JVM异常关闭的情况下，在下次重启ElasticSearch，索引依然能够正确读写，就是这么神奇。)
+                    // ( 这是怎么实现的呢？秘密就在这个NativeFSLockFactory.INSTANCE参数中，他是FSDirectory提供的默认锁，他的最大优势就是当程序异常退出后，)
+                    // ( 可以由操作系统负责解除索引的锁，操作系统会释放文件上所有的引用，以确保索引可以正确读写。)
+                    //  LockFactory还提供了其他类型的锁，由于涉及到Lucene的深层次知识点，这里就不展开叙述。
                     try (Directory luceneDir = FSDirectory.open(dir, NativeFSLockFactory.INSTANCE)) {
                         startupTraceLogger.trace("obtaining node lock on {} ...", dir.toAbsolutePath());
                         try {
+                            // 取得锁后生成一个内部类NodePath的实例，到这里锁就持久化到磁盘上了。[node.lock文件]
                             locks[dirIndex] = luceneDir.obtainLock(NODE_LOCK_FILENAME);
                             nodePaths[dirIndex] = new NodePath(dir);
                             nodeLockId = possibleLockId;

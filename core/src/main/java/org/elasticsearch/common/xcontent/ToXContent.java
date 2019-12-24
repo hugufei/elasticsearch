@@ -30,8 +30,13 @@ import java.util.Map;
  * An interface allowing to transfer an object to "XContent" using an {@link XContentBuilder}.
  * The output may or may not be a value object. Objects implementing {@link ToXContentObject} output a valid value
  * but those that don't may or may not require emitting a startObject and an endObject.
+ *
+ * 一个允许使用XContentBuilder从Object转换为XContent的接口。
+ * 输出可能是也可能不是一个值对象
+ * 实现了ToXContentObject的对象输出有效值，不过值得一提的是，实现输出不可能或可能不需要startObject和endObject原型。
  */
 public interface ToXContent {
+
     interface Params {
         String param(String key);
 
@@ -42,6 +47,7 @@ public interface ToXContent {
         Boolean paramAsBoolean(String key, Boolean defaultValue);
     }
 
+    // 空类型参数
     Params EMPTY_PARAMS = new Params() {
         @Override
         public String param(String key) {
@@ -65,6 +71,7 @@ public interface ToXContent {
 
     };
 
+    // Map类型参数
     class MapParams implements Params {
         private static final DeprecationLogger DEPRECATION_LOGGER = new DeprecationLogger(Loggers.getLogger(MapParams.class));
 
@@ -103,6 +110,7 @@ public interface ToXContent {
         }
     }
 
+    // 委托类型参数
     class DelegatingMapParams extends MapParams {
 
         private final Params delegate;

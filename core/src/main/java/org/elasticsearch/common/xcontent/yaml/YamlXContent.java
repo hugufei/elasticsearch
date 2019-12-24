@@ -39,6 +39,8 @@ import java.util.Set;
 
 /**
  * A YAML based content implementation using Jackson.
+ *
+ * 是ElasticSearch响应cat API请求时，指定响应返回数据格式（yaml）用到的模块，在设置http请求的x-content内容时使用到。
  */
 public class YamlXContent implements XContent {
 

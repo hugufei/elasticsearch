@@ -76,12 +76,18 @@ import java.util.stream.Stream;
  *     new Setting<>("my.color.setting", Color.RED.toString(), Color::valueOf, SettingsProperty.NodeScope);
  * }
  * </pre>
+ *
+ * 封装了典型的环境设定，比如：value，parsing，scope
+ * 在ElasticSearch或者任何ElasticSearch插件中使用到的设定，都是用这个类型安全（通过提供Property的枚举类）且通用的设定类搭配AbstractScopedSettings类来设定工程参数的。
+ * 一般封装完善的基础设施类工程都会提供类似于ElasticSearch中的Setting这种环境设定类型的完善封装类。
  */
 public class Setting<T> extends ToXContentToBytes {
 
     public enum Property {
         /**
          * should be filtered in some api (mask password/credentials)
+         *
+         * 该setting是否配置了过滤属性
          */
         Filtered,
 
@@ -92,35 +98,49 @@ public class Setting<T> extends ToXContentToBytes {
 
         /**
          * iff this setting can be dynamically updateable
+         *
+         * 该setting是否是动态可更新
          */
         Dynamic,
 
         /**
          * mark this setting as final, not updateable even when the context is not dynamic
          * ie. Setting this property on an index scoped setting will fail update when the index is closed
+         *
+         * 该setting是否是最终地，如果是最终的，那么该setting将不可更新。在index已经关闭的情况下，在index范围内设置该属性（Final）将会失败
          */
         Final,
 
         /**
          * mark this setting as deprecated
+         *
+         * 该setting是否是被声明遗弃
          */
         Deprecated,
 
         /**
          * Node scope
+         *
+         * 该setting的节点范围
          */
         NodeScope,
 
         /**
          * Index scope
+         *
+         * 该setting的索引范围
          */
         IndexScope
     }
 
+    // setting的key，如果是GroupSetting则代表group的前缀
     private final Key key;
+    // 在使用get()方法获取setting的原始默认字符串时用到，一般会传入泛型T的一个默认值（(s)->value）
     protected final Function<Settings, String> defaultValue;
+    // 如果还没有定义变量setting，就用设置回退的setting。在调用Setting的get(Settings primary, Settings secondary) 方法时，如果primary不存在的话就会调用fallbackSetting的get方法
     @Nullable
     private final Setting<T> fallbackSetting;
+    // 与validator函数接口联合使用, 通过get()获取setting的值
     private final Function<String, T> parser;
     private final EnumSet<Property> properties;
 
@@ -1086,6 +1106,7 @@ public class Setting<T> extends ToXContentToBytes {
         }
     }
 
+    // match方法检查key必须以'.'结尾
     public static final class GroupKey extends SimpleKey {
         public GroupKey(String key) {
             super(key);
@@ -1100,6 +1121,7 @@ public class Setting<T> extends ToXContentToBytes {
         }
     }
 
+    // match方法检查key必须以'.'结尾
     public static final class ListKey extends SimpleKey {
         private final Pattern pattern;
 
@@ -1118,6 +1140,7 @@ public class Setting<T> extends ToXContentToBytes {
      * A key that allows for static pre and suffix. This is used for settings
      * that have dynamic namespaces like for different accounts etc.
      */
+    // 允许静态前缀和后缀。这是用于为不同账户设置动态名称空间。
     public static final class AffixKey implements Key {
         private final Pattern pattern;
         private final String prefix;

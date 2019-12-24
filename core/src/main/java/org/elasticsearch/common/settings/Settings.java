@@ -79,6 +79,10 @@ import static org.elasticsearch.common.unit.TimeValue.parseTimeValue;
 
 /**
  * An immutable settings implementation.
+ *
+ *
+ * 通过一个简单的构造方法或Settigns的内部静态类Builder的builder方法来产生Settings实例。
+ *
  */
 public final class Settings implements ToXContent {
     public static final Settings EMPTY = new Builder().build();
@@ -1136,6 +1140,7 @@ public final class Settings implements ToXContent {
     // TODO We could use an FST internally to make things even faster and more compact
     private static final class FilteredMap extends AbstractMap<String, String> {
         private final Map<String, String> delegate;
+        // 在调用settings的get方法时就会先调用filter.test(key)来判断key是不是符合startWith(prefix)，从而达到了过滤的效果。
         private final Predicate<String> filter;
         private final String prefix;
         // we cache that size since we have to iterate the entire set

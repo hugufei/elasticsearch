@@ -75,7 +75,9 @@ final class Bootstrap {
     private final Thread keepAliveThread;
     private final Spawner spawner = new Spawner();
 
-    /** creates a new instance */
+    /**
+     * creates a new instance
+     */
     Bootstrap() {
         // 初始化keepAliveThread线程
         keepAliveThread = new Thread(new Runnable() {
@@ -101,7 +103,9 @@ final class Bootstrap {
         });
     }
 
-    /** initialize native resources */
+    /**
+     * initialize native resources
+     */
     // 初始化本地资源
     public static void initializeNatives(Path tmpFile, boolean mlockAll, boolean systemCallFilter, boolean ctrlHandler) {
         final Logger logger = Loggers.getLogger(Bootstrap.class);
@@ -119,9 +123,9 @@ final class Bootstrap {
         // mlockall if requested
         if (mlockAll) {
             if (Constants.WINDOWS) {
-               Natives.tryVirtualLock();
+                Natives.tryVirtualLock();
             } else {
-               Natives.tryMlockall();
+                Natives.tryMlockall();
             }
         }
 
@@ -199,10 +203,10 @@ final class Bootstrap {
 
         // 初始化本地资源
         initializeNatives(
-                environment.tmpFile(),
-                BootstrapSettings.MEMORY_LOCK_SETTING.get(settings),
-                BootstrapSettings.SYSTEM_CALL_FILTER_SETTING.get(settings),
-                BootstrapSettings.CTRLHANDLER_SETTING.get(settings));
+            environment.tmpFile(),
+            BootstrapSettings.MEMORY_LOCK_SETTING.get(settings),
+            BootstrapSettings.SYSTEM_CALL_FILTER_SETTING.get(settings),
+            BootstrapSettings.CTRLHANDLER_SETTING.get(settings));
 
         // initialize probes before the security manager is installed
         // 在安全管理器安装之前初始化探针
@@ -243,9 +247,7 @@ final class Bootstrap {
         // 通过参数environment实例化Node
         node = new Node(environment) {
             @Override
-            protected void validateNodeBeforeAcceptingRequests(
-                final Settings settings,
-                final BoundTransportAddress boundTransportAddress, List<BootstrapCheck> checks) throws NodeValidationException {
+            protected void validateNodeBeforeAcceptingRequests(final Settings settings,final BoundTransportAddress boundTransportAddress, List<BootstrapCheck> checks) throws NodeValidationException {
                 BootstrapChecks.check(settings, boundTransportAddress, checks);
             }
         };
@@ -300,7 +302,9 @@ final class Bootstrap {
         }
     }
 
-    /** Set the system property before anything has a chance to trigger its use */
+    /**
+     * Set the system property before anything has a chance to trigger its use
+     */
     // TODO: why? is it just a bad default somewhere? or is it some BS around 'but the client' garbage <-- my guess
     @SuppressForbidden(reason = "sets logger prefix on initialization")
     static void initLoggerPrefix() {
@@ -309,12 +313,15 @@ final class Bootstrap {
 
     /**
      * This method is invoked by {@link Elasticsearch#main(String[])} to startup elasticsearch.
+     * <p>
+     * 做了一些启动前的初始化工作
      */
     static void init(
-            final boolean foreground,
-            final Path pidFile,
-            final boolean quiet,
-            final Environment initialEnv) throws BootstrapException, NodeValidationException, UserException {
+        final boolean foreground, // 标识elasticsearch是否是作为后台守护进程启动的，
+        final Path pidFile, // 通过parser解析args后得到，实际是解析了默认命令行参数（verbose，E,silent，version，help，quiet，daemonize，pidfile）
+        final boolean quiet, // 同上
+        final Environment initialEnv // Environment实例化的环境参数对象，保存了一些类似于repoFile，configFile，pluginsFile，binFile，libFile等参数。
+    ) throws BootstrapException, NodeValidationException, UserException {
         // Set the system property before anything has a chance to trigger its use
         initLoggerPrefix();
 
@@ -322,10 +329,12 @@ final class Bootstrap {
         // the security manager is installed
         BootstrapInfo.init();
 
+        // 实例化一个Bootstrap对象
         INSTANCE = new Bootstrap();
 
         final SecureSettings keystore = loadSecureSettings(initialEnv);
         Environment environment = createEnvironment(foreground, pidFile, keystore, initialEnv.settings());
+        // 配置log输出器
         try {
             LogConfigurator.configure(environment);
         } catch (IOException e) {
@@ -333,6 +342,7 @@ final class Bootstrap {
         }
         checkForCustomConfFile();
 
+        // 创建pid文件，会在磁盘上持久化一个记录应用pid的文件
         if (environment.pidFile() != null) {
             try {
                 PidFile.create(environment.pidFile(), true);
@@ -343,6 +353,7 @@ final class Bootstrap {
 
         final boolean closeStandardStreams = (foreground == false) || quiet;
         try {
+            // 通过参数foreground和quiet来控制日志输出
             if (closeStandardStreams) {
                 final Logger rootLogger = ESLoggerFactory.getRootLogger();
                 final Appender maybeConsoleAppender = Loggers.findAppender(rootLogger, ConsoleAppender.class);
@@ -361,6 +372,7 @@ final class Bootstrap {
             Thread.setDefaultUncaughtExceptionHandler(
                 new ElasticsearchUncaughtExceptionHandler(() -> Node.NODE_NAME_SETTING.get(environment.settings())));
 
+            // 调用Bootstrap的setup方法
             INSTANCE.setup(true, environment);
 
             try {
@@ -370,6 +382,7 @@ final class Bootstrap {
                 throw new BootstrapException(e);
             }
 
+            // 调用Bootstrap的start方法
             INSTANCE.start();
 
             if (closeStandardStreams) {

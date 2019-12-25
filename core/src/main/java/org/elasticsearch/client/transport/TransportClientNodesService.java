@@ -123,12 +123,17 @@ final class TransportClientNodesService extends AbstractComponent implements Clo
     TransportClientNodesService(Settings settings, TransportService transportService,
                                        ThreadPool threadPool, TransportClient.HostFailureListener hostFailureListener) {
         super(settings);
+        // 注入了集群名称
         this.clusterName = ClusterName.CLUSTER_NAME_SETTING.get(settings);
         this.transportService = transportService;
+        // 线程池
         this.threadPool = threadPool;
+        // 最小兼容版本
         this.minCompatibilityVersion = Version.CURRENT.minimumCompatibilityVersion();
 
+        // 客户端传输采样时间间隔
         this.nodesSamplerInterval = TransportClient.CLIENT_TRANSPORT_NODES_SAMPLER_INTERVAL.get(this.settings);
+        // ping超时时间
         this.pingTimeout = TransportClient.CLIENT_TRANSPORT_PING_TIMEOUT.get(this.settings).millis();
         this.ignoreClusterName = TransportClient.CLIENT_TRANSPORT_IGNORE_CLUSTER_NAME.get(this.settings);
 
@@ -136,6 +141,8 @@ final class TransportClientNodesService extends AbstractComponent implements Clo
             logger.debug("node_sampler_interval[{}]", nodesSamplerInterval);
         }
 
+        // 节点采样模型NodeSampler
+        // 如果"sniff"配置项是true的话使用SniffNodesSampler类。
         if (TransportClient.CLIENT_TRANSPORT_SNIFF.get(this.settings)) {
             this.nodesSampler = new SniffNodesSampler();
         } else {
@@ -244,8 +251,10 @@ final class TransportClientNodesService extends AbstractComponent implements Clo
             throw new IllegalStateException("transport client is closed");
         }
         ensureNodesAreAvailable(nodes);
+        // 随机获取节点
         int index = getNodeNumber();
         RetryListener<Response> retryListener = new RetryListener<>(callback, listener, nodes, index, hostFailureListener);
+        // 随机一个节点出来
         DiscoveryNode node = retryListener.getNode(0);
         try {
             callback.doWithNode(node, retryListener);
@@ -349,6 +358,7 @@ final class TransportClientNodesService extends AbstractComponent implements Clo
         }
     }
 
+    // 节点采样模型
     abstract class NodeSampler {
         public void sample() {
             synchronized (mutex) {
@@ -398,6 +408,8 @@ final class TransportClientNodesService extends AbstractComponent implements Clo
         }
     }
 
+    // 只关注配置文件配置的节点， 这里创建的都是light connect
+    // SimpleNodeSampler会限制当前可用client一定是在配置中设置的节点中的，这样的意图是让集群中的某些节点专门用来负责接收用户请求。
     class SimpleNodeSampler extends NodeSampler {
 
         @Override
@@ -444,6 +456,8 @@ final class TransportClientNodesService extends AbstractComponent implements Clo
         }
     }
 
+    // client会主动发现集群里的其他节点，即使节点不在配置文件中，会创建fully connect
+    // 会使用所有发现的节点，让其参与负载，即使这个节点不在配置中
     class SniffNodesSampler extends NodeSampler {
 
         @Override
@@ -559,6 +573,7 @@ final class TransportClientNodesService extends AbstractComponent implements Clo
                     newFilteredNodes.add(entry.getKey());
                     continue;
                 }
+                // 遍历所有的数据节点，写入到新节点里面
                 for (ObjectCursor<DiscoveryNode> cursor : entry.getValue().getState().nodes().getDataNodes().values()) {
                     newNodes.add(cursor.value);
                 }

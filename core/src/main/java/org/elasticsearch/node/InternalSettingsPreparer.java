@@ -83,8 +83,10 @@ public class InternalSettingsPreparer {
      * @param properties Map of properties key/value pairs (usually from the command-line)
      * @return the {@link Settings} and {@link Environment} as a {@link Tuple}
      */
+    // 加载配置文件，得到Environment
     public static Environment prepareEnvironment(Settings input, Terminal terminal, Map<String, String> properties) {
         // just create enough settings to build the environment, to get the config dir
+        // 构建一个默认的Settings的实例
         Settings.Builder output = Settings.builder();
         initializeSettings(output, input, properties);
         Environment environment = new Environment(output.build());
@@ -92,11 +94,14 @@ public class InternalSettingsPreparer {
         output = Settings.builder(); // start with a fresh output
         boolean settingsFileFound = false;
         Set<String> foundSuffixes = new HashSet<>();
+        // 支持yml/yaml/json格式的配置文件
         for (String allowedSuffix : ALLOWED_SUFFIXES) {
+            // 取得配置文件路径
             Path path = environment.configFile().resolve("elasticsearch" + allowedSuffix);
             if (Files.exists(path)) {
                 if (!settingsFileFound) {
                     try {
+                        // 加载给定或默认路径下的elasticsearch.yml
                         output.loadFromPath(path);
                     } catch (IOException e) {
                         throw new SettingsException("Failed to load settings from " + path.toString(), e);
@@ -106,18 +111,21 @@ public class InternalSettingsPreparer {
                 foundSuffixes.add(allowedSuffix);
             }
         }
+        //找到多个配置文件则报错
         if (foundSuffixes.size() > 1) {
             throw new SettingsException("multiple settings files found with suffixes: "
                 + Strings.collectionToDelimitedString(foundSuffixes, ","));
         }
 
         // re-initialize settings now that the config file has been loaded
+        // 既然配置文件已经加载，请重新初始化设置
         initializeSettings(output, input, properties);
         finalizeSettings(output, terminal);
 
         environment = new Environment(output.build());
 
         // we put back the path.logs so we can use it in the logging configuration file
+        // 将日志文件的路径加载进Settings中，这样就保证了elasticsearch.yml文件中配置的日志路径path.logs生效
         output.put(Environment.PATH_LOGS_SETTING.getKey(), cleanPath(environment.logsFile().toAbsolutePath().toString()));
         return new Environment(output.build());
     }

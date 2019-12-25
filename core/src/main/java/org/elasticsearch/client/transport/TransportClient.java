@@ -81,6 +81,8 @@ import static org.elasticsearch.common.unit.TimeValue.timeValueSeconds;
  * The transport client important modules used is the {@link org.elasticsearch.common.network.NetworkModule} which is
  * started in client mode (only connects, no bind).
  */
+
+
 public abstract class TransportClient extends AbstractClient {
 
     public static final Setting<TimeValue> CLIENT_TRANSPORT_NODES_SAMPLER_INTERVAL =
@@ -118,6 +120,7 @@ public abstract class TransportClient extends AbstractClient {
         return list;
     }
 
+    //
     private static ClientTemplate buildTemplate(Settings providedSettings, Settings defaultSettings,
                                                 Collection<Class<? extends Plugin>> plugins, HostFailureListener failureListner) {
         if (Node.NODE_NAME_SETTING.exists(providedSettings) == false) {
@@ -180,6 +183,8 @@ public abstract class TransportClient extends AbstractClient {
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
             }
+            // 实例化TransportService
+            // 通过networkModule的getRransportInterceptor方法得到的TransportInterceptor实例就是通过nettychannel写入数据的地方
             final TransportService transportService = new TransportService(settings, transport, threadPool,
                 networkModule.getTransportInterceptor(),
                 boundTransportAddress -> DiscoveryNode.createLocal(settings, address, UUIDs.randomBase64UUID()), null);
@@ -247,7 +252,10 @@ public abstract class TransportClient extends AbstractClient {
     final NamedWriteableRegistry namedWriteableRegistry;
 
     private final List<LifecycleComponent> pluginLifecycleComponents;
+
+    // 使用TransportClientNodesService进行代理
     private final TransportClientNodesService nodesService;
+
     private final TransportProxyClient proxy;
 
     /**

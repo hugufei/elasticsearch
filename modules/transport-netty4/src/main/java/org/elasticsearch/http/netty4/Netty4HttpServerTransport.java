@@ -499,8 +499,10 @@ public class Netty4HttpServerTransport extends AbstractLifecycleComponent implem
         return corsConfig;
     }
 
+    // 转发给RestController的DispatchRequest
     void dispatchRequest(final RestRequest request, final RestChannel channel) {
         final ThreadContext threadContext = threadPool.getThreadContext();
+        // 转发给RestController的DispatchRequest方法
         try (ThreadContext.StoredContext ignore = threadContext.stashContext()) {
             dispatcher.dispatchRequest(request, channel, threadContext);
         }

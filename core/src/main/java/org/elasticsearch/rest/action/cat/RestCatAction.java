@@ -33,6 +33,7 @@ import java.util.List;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 
+// ElasticSearch中的cat API接口处理类
 public class RestCatAction extends BaseRestHandler {
 
     private static final String CAT = "=^.^=";
@@ -42,9 +43,11 @@ public class RestCatAction extends BaseRestHandler {
     @Inject
     public RestCatAction(Settings settings, RestController controller, List<AbstractCatAction> catActions) {
         super(settings);
+        // 先注册了 “_cat” 这个路径
         controller.registerHandler(GET, "/_cat", this);
         StringBuilder sb = new StringBuilder();
         sb.append(CAT_NL);
+        // 将List<AbstractCatAction> catActions 中保存的所有action按照预先在documentation中设定好的文本取出来，送入Response中
         for (AbstractCatAction catAction : catActions) {
             catAction.documentation(sb);
         }

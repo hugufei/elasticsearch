@@ -65,13 +65,14 @@ import java.util.stream.Collectors;
 import static org.elasticsearch.common.io.FileSystemUtils.isAccessibleDirectory;
 
 /**
- *
+ * 插件service
  */
 public class PluginsService extends AbstractComponent {
 
     /**
      * We keep around a list of plugins and modules
      */
+    // Plugin元组是ElasticSearch发挥功能的重要内容， 加载的Modules路径下的Plugin组件一起构成了ElasticSearch的核心主干功能
     private final List<Tuple<PluginInfo, Plugin>> plugins;
     private final PluginsAndModules info;
     public static final Setting<List<String>> MANDATORY_SETTING =
@@ -95,10 +96,15 @@ public class PluginsService extends AbstractComponent {
     public PluginsService(Settings settings, Path modulesDirectory, Path pluginsDirectory, Collection<Class<? extends Plugin>> classpathPlugins) {
         super(settings);
 
+        // 构造了一个List，List的元素为PluginsInfo类型和Plugin类型的元组（Tuple）
         List<Tuple<PluginInfo, Plugin>> pluginsLoaded = new ArrayList<>();
+
         List<PluginInfo> pluginsList = new ArrayList<>();
         // first we load plugins that are on the classpath. this is for tests and transport clients
+
+        // 再遍历classpathPlugins的值中的Plugin实现类对象
         for (Class<? extends Plugin> pluginClass : classpathPlugins) {
+            //加载插件
             Plugin plugin = loadPlugin(pluginClass, settings);
             PluginInfo pluginInfo = new PluginInfo(pluginClass.getName(), "classpath plugin", "NA", pluginClass.getName(), false);
             if (logger.isTraceEnabled()) {
@@ -111,6 +117,7 @@ public class PluginsService extends AbstractComponent {
         Set<Bundle> seenBundles = new LinkedHashSet<>();
         List<PluginInfo> modulesList = new ArrayList<>();
         // load modules
+        // 处理pmodulesDirectory路径下的插件
         if (modulesDirectory != null) {
             try {
                 Set<Bundle> modules = getModuleBundles(modulesDirectory);
@@ -124,6 +131,7 @@ public class PluginsService extends AbstractComponent {
         }
 
         // now, find all the ones that are in plugins/
+        // 处理pluginsDirectory路径下的插件
         if (pluginsDirectory != null) {
             try {
                 Set<Bundle> plugins = getPluginBundles(pluginsDirectory);
@@ -139,7 +147,9 @@ public class PluginsService extends AbstractComponent {
         List<Tuple<PluginInfo, Plugin>> loaded = loadBundles(seenBundles);
         pluginsLoaded.addAll(loaded);
 
+        // 加载了Plugins和Modules中的基本信息和jar路径
         this.info = new PluginsAndModules(pluginsList, modulesList);
+        // 加载了bundle对象，bundle中包含了基础信息和所有jar的URL
         this.plugins = Collections.unmodifiableList(pluginsLoaded);
 
         // We need to build a List of plugins for checking mandatory plugins
@@ -179,9 +189,11 @@ public class PluginsService extends AbstractComponent {
         }
     }
 
+    //得到插件的所有Settings对象
     public Settings updatedSettings() {
         Map<String, String> foundSettings = new HashMap<>();
         final Settings.Builder builder = Settings.builder();
+        // 依次调用各个plugin的additionalSettings()方法
         for (Tuple<PluginInfo, Plugin> plugin : plugins) {
             Settings settings = plugin.v2().additionalSettings();
             for (String setting : settings.getAsMap().keySet()) {
@@ -204,6 +216,7 @@ public class PluginsService extends AbstractComponent {
         return modules;
     }
 
+    // 获取插件中定义的线程池
     public List<ExecutorBuilder<?>> getExecutorBuilders(Settings settings) {
         final ArrayList<ExecutorBuilder<?>> builders = new ArrayList<>();
         for (final Tuple<PluginInfo, Plugin> plugin : plugins) {
@@ -413,12 +426,15 @@ public class PluginsService extends AbstractComponent {
         }
     }
 
+    //加载插件
     private Plugin loadPlugin(Class<? extends Plugin> pluginClass, Settings settings) {
         try {
             try {
+                // 先调用 参数为Settings的构造函数
                 return pluginClass.getConstructor(Settings.class).newInstance(settings);
             } catch (NoSuchMethodException e) {
                 try {
+                    // 调用无参构造函数
                     return pluginClass.getConstructor().newInstance();
                 } catch (NoSuchMethodException e1) {
                     throw new ElasticsearchException("No constructor for [" + pluginClass + "]. A plugin class must " +

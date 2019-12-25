@@ -35,6 +35,7 @@ import java.util.Map;
 
 import static java.util.Collections.unmodifiableMap;
 
+// TransportClientNodesService的代理对象
 final class TransportProxyClient {
 
     private final TransportClientNodesService nodesService;

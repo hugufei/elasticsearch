@@ -144,6 +144,7 @@ public class ThreadPool extends AbstractComponent implements Closeable {
 
     private final CachedTimeThread cachedTimeThread;
 
+    //直接由当前线程执行任务的线程池
     static final ExecutorService DIRECT_EXECUTOR = EsExecutors.newDirectExecutorService();
 
     private final ThreadContext threadContext;
@@ -157,31 +158,91 @@ public class ThreadPool extends AbstractComponent implements Closeable {
     public static Setting<TimeValue> ESTIMATED_TIME_INTERVAL_SETTING =
         Setting.timeSetting("thread_pool.estimated_time_interval", TimeValue.timeValueMillis(200), Setting.Property.NodeScope);
 
+    // 构建Elasticsearch的线程池
     public ThreadPool(final Settings settings, final ExecutorBuilder<?>... customBuilders) {
         super(settings);
 
         assert Node.NODE_NAME_SETTING.exists(settings);
 
         final Map<String, ExecutorBuilder> builders = new HashMap<>();
+        // 获得处理器CPU的数量
         final int availableProcessors = EsExecutors.boundedNumberOfProcessors(settings);
+        // availableProcessors的一半，但最大不超过5。
         final int halfProcMaxAt5 = halfNumberOfProcessorsMaxFive(availableProcessors);
+        // availableProcessors的一半，但最大不超过10。
         final int halfProcMaxAt10 = halfNumberOfProcessorsMaxTen(availableProcessors);
+
+        // 确定线程池的最小值： 可用CPU处理器数量的4倍，且固定范围为最小128，最大为512。
+        // 由此可见如果用一般服务器的话，线程池上限最终会被确定为128，可以说还是比较高的设定了。
         final int genericThreadPoolMax = boundedBy(4 * availableProcessors, 128, 512);
+
+        /**********************接下来开始构造执行不同操作时线程池Executor*****************/
+        // 普通操作的Executor：
+        // 构建一个可伸缩的Executor构建器，value为ScalingExecutorBuilder对象，参数如下：
+        // 1）name：线程池执行者的名称，也就是generic。
+        // 2）core：线程池中线程的最小值，固定为4。将thread_pool.generic.core的设为这个值。
+        // 3）max：线程池中线程的最大值，对应上面提到的genericThreadPoolMax，在本机跑的结果是128
+        // 4）keepAlive：超过4个线程后，线程保持活跃的时间。这个值固定为30秒。这个参数被设定为变量thread_pool.generic.keep_alive
         builders.put(Names.GENERIC, new ScalingExecutorBuilder(Names.GENERIC, 4, genericThreadPoolMax, TimeValue.timeValueSeconds(30)));
+
+        // 索引操作的Executor：
+        // 构建一个固定的Executor构建器。key为index，value为FixedExecutorBuilder对象，接收参数和对应操作如下：
+        // 1）settings：Node的配置settings。设定配置变量thread_pool.index.size的值为该参数中cpu的数量
+        // 2）name：线程池执行者的名称，也就是idnex。
+        // 3）size：线程的固定大小，和参数name一起构造配置变量thread_pool.index.size的值为size的值，本机跑的结果是4。
+        // 4）阻塞队列的大小，构造配置变量thread_pool.index.queue_size的值为200，注意这个值固定为200。
         builders.put(Names.INDEX, new FixedExecutorBuilder(settings, Names.INDEX, availableProcessors, 200));
+
+        // 批处理操作的Executor：
+        // 构建一个固定的Executor构建器。key为bulk，value为FixedExecutorBuilder对象，接收参数和对应操作如下：
+        // 1）settings：Node的配置settings。设定配置变量thread_pool.bulk.size的值为该参数中cpu的数量
+        // 2）name：线程池执行者的名称，也就是bulk。
+        // 3）size：线程的固定大小，和参数name一起构造配置变量thread_pool.bulk.size的值为size的值，本机跑的结果是4。
+        // 4）queueSize：阻塞队列的大小，构造配置变量thread_pool.bulk.queue_size的值为200，注意这个值固定为200。
         builders.put(Names.BULK, new FixedExecutorBuilder(settings, Names.BULK, availableProcessors, 200)); // now that we reuse bulk for index/delete ops
+
+        // get操作的Executor：
+        // 构建一个固定的Executor构建器。key为get，value为FixedExecutorBuilder对象，接收参数和对应操作如下：
+        // 1）settings：Node的配置settings。设定配置变量thread_pool.get.size的值为该参数中cpu的数量
+        // 2）name：线程池执行者的名称，也就是get。
+        // 3）size：线程的固定大小，和参数name一起构造配置变量thread_pool.get.size的值为size的值，本机跑的结果是4。
+        // 4）queueSize：阻塞队列的大小，构造配置变量thread_pool.get.queue_size的值为1000，注意这个值固定为1000。
         builders.put(Names.GET, new FixedExecutorBuilder(settings, Names.GET, availableProcessors, 1000));
+
+        // SEARCH操作的Executor：
+        // 构建一个固定的Executor构建器。key为SEARCH，value为FixedExecutorBuilder对象，接收参数和对应操作如下：
+        // 1）settings：Node的配置settings。设定配置变量thread_pool.get.size的值为该参数中cpu的数量
+        // 2）name：线程池执行者的名称，也就是SEARCH。
+        // 3）size：线程的固定大小，((CPU数 * 3) / 2) + 1;
+        // 4）queueSize：阻塞队列的大小，构造配置变量thread_pool.search.queue_size的值为1000，注意这个值固定为1000。
         builders.put(Names.SEARCH, new FixedExecutorBuilder(settings, Names.SEARCH, searchThreadPoolSize(availableProcessors), 1000));
+
+        // 管理操作的Executor
+        // 构建一个可伸缩的Executor构建器，value为ScalingExecutorBuilder对象，参数如下：
+        // 1）name：线程池执行者的名称，也就是management。
+        // 2）core：线程池中线程的最小值，固定为1。
+        // 3）max：线程池中线程的最大值，固定为5。
+        // 4）keepAlive：超过4个线程后，线程保持活跃的时间。这个值固定5秒。
         builders.put(Names.MANAGEMENT, new ScalingExecutorBuilder(Names.MANAGEMENT, 1, 5, TimeValue.timeValueMinutes(5)));
+
         // no queue as this means clients will need to handle rejections on listener queue even if the operation succeeded
         // the assumption here is that the listeners should be very lightweight on the listeners side
+
+        // 监听操作的Executor，availableProcessors的一半，但最大不超过10。
         builders.put(Names.LISTENER, new FixedExecutorBuilder(settings, Names.LISTENER, halfProcMaxAt10, -1));
+        // flush操作的Executor
         builders.put(Names.FLUSH, new ScalingExecutorBuilder(Names.FLUSH, 1, halfProcMaxAt5, TimeValue.timeValueMinutes(5)));
+        // refresh操作的Executor
         builders.put(Names.REFRESH, new ScalingExecutorBuilder(Names.REFRESH, 1, halfProcMaxAt10, TimeValue.timeValueMinutes(5)));
+        // warmer操作的Executor
         builders.put(Names.WARMER, new ScalingExecutorBuilder(Names.WARMER, 1, halfProcMaxAt5, TimeValue.timeValueMinutes(5)));
+        // snapshot操作的Executor
         builders.put(Names.SNAPSHOT, new ScalingExecutorBuilder(Names.SNAPSHOT, 1, halfProcMaxAt5, TimeValue.timeValueMinutes(5)));
+        // 碎片处理操作的Executor
         builders.put(Names.FETCH_SHARD_STARTED, new ScalingExecutorBuilder(Names.FETCH_SHARD_STARTED, 1, 2 * availableProcessors, TimeValue.timeValueMinutes(5)));
+        // 强制merge操作的Executor
         builders.put(Names.FORCE_MERGE, new FixedExecutorBuilder(settings, Names.FORCE_MERGE, 1, -1));
+        // 获取碎片操作的Executor
         builders.put(Names.FETCH_SHARD_STORE, new ScalingExecutorBuilder(Names.FETCH_SHARD_STORE, 1, 2 * availableProcessors, TimeValue.timeValueMinutes(5)));
         for (final ExecutorBuilder<?> builder : customBuilders) {
             if (builders.containsKey(builder.name())) {

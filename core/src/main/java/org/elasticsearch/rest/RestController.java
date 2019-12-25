@@ -57,6 +57,9 @@ import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.NOT_ACCEPTABLE;
 import static org.elasticsearch.rest.RestStatus.OK;
 
+// API提供服务的关键类之一
+// 1) 继承自AbstractComponent
+// 2) 实现了HttpServerTransport.Dispatcher接口。
 public class RestController extends AbstractComponent implements HttpServerTransport.Dispatcher {
 
     private final PathTrie<RestHandler> getHandlers = new PathTrie<>(RestUtils.REST_DECODER);
@@ -152,8 +155,11 @@ public class RestController extends AbstractComponent implements HttpServerTrans
      * @param path Path to handle (e.g., "/{index}/{type}/_bulk")
      * @param handler The handler to actually execute
      */
+    // 当注册了一个REST处理程序后，如果提供的方法和路径之一匹配请求时，执行处理程序。
     public void registerHandler(RestRequest.Method method, String path, RestHandler handler) {
+        // 根据方法名称，返回对应的处理器集合
         PathTrie<RestHandler> handlers = getHandlersForMethod(method);
+        // 注册
         if (handlers != null) {
             handlers.insert(path, handler);
         } else {
@@ -170,6 +176,8 @@ public class RestController extends AbstractComponent implements HttpServerTrans
         return (handler != null) ? handler.canTripCircuitBreaker() : true;
     }
 
+    // 发送request到相关处理请求程序，如果request不能被任何处理请求程序处理则直接响应给RestChannel
+    // 由于ElasticSearch没有用到任何WEB框架，rest请求底层都是使用Netty实现的，收到的请求都是从ElasticSearch的transport-netty4模块里面发送给ElasticSearch的核心的。
     @Override
     public void dispatchRequest(RestRequest request, RestChannel channel, ThreadContext threadContext) {
         if (request.rawPath().equals("/favicon.ico")) {
@@ -180,6 +188,8 @@ public class RestController extends AbstractComponent implements HttpServerTrans
         try {
             final int contentLength = request.hasContent() ? request.content().length() : 0;
             assert contentLength >= 0 : "content length was negative, how is that possible?";
+
+            // 会根据具体的请求类型，得到对应的RestHandler
             final RestHandler handler = getHandler(request);
 
             if (contentLength > 0 && hasContentTypeOrCanAutoDetect(request, handler) == false) {
@@ -196,6 +206,7 @@ public class RestController extends AbstractComponent implements HttpServerTrans
                 }
                 // iff we could reserve bytes for the request we need to send the response also over this channel
                 responseChannel = new ResourceHandlingHttpChannel(channel, circuitBreakerService, contentLength);
+                // 处理请求
                 dispatchRequest(request, responseChannel, client, threadContext, handler);
             }
         } catch (Exception e) {
@@ -209,6 +220,7 @@ public class RestController extends AbstractComponent implements HttpServerTrans
         }
     }
 
+    // 发送一个失败的RestRequest，用在request是残缺的情况下。
     @Override
     public void dispatchBadRequest(
             final RestRequest request,
@@ -234,6 +246,7 @@ public class RestController extends AbstractComponent implements HttpServerTrans
         }
     }
 
+    // 继续走这处理请求
     void dispatchRequest(final RestRequest request, final RestChannel channel, final NodeClient client, ThreadContext threadContext,
                          final RestHandler handler) throws Exception {
         if (checkRequestParameters(request, channel) == false) {
@@ -257,6 +270,7 @@ public class RestController extends AbstractComponent implements HttpServerTrans
                 }
             } else {
                 final RestHandler wrappedHandler = Objects.requireNonNull(handlerWrapper.apply(handler));
+                // 继续处理请求
                 wrappedHandler.handleRequest(request, channel, client);
             }
         }
@@ -355,6 +369,7 @@ public class RestController extends AbstractComponent implements HttpServerTrans
         }
     }
 
+    //根据方法名称，返回对应的处理器集合
     private PathTrie<RestHandler> getHandlersForMethod(RestRequest.Method method) {
         if (method == RestRequest.Method.GET) {
             return getHandlers;

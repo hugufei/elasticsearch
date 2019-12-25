@@ -22,7 +22,11 @@ package org.elasticsearch.common.component;
 import org.elasticsearch.common.lease.Releasable;
 
 /**
+ * Releasable类是ElasticSearch自己封装JDK1.7中的AutoCloseable
  *
+ * 该接口主要标记了Component的生命周期状态相关，当然还有添加和移除生命周期监听器.
+ *
+ * 主要还是看LifecycleComponent的实现类是怎么实现这些标记的逻辑的
  */
 public interface LifecycleComponent extends Releasable {
 

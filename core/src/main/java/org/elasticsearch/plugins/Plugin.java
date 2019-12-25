@@ -113,6 +113,7 @@ public abstract class Plugin implements Closeable {
      * Additional node settings loaded by the plugin. Note that settings that are explicit in the nodes settings can't be
      * overwritten with the additional settings. These settings added if they don't exist.
      */
+    // 在不同的plugin实现类中有不同实现，具体作用是构建插件运行过程中需要的Settings对象
     public Settings additionalSettings() {
         return Settings.Builder.EMPTY_SETTINGS;
     }

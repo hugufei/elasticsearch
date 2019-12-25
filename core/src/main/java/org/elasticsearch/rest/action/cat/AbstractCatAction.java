@@ -37,12 +37,14 @@ import java.util.Set;
 import static org.elasticsearch.rest.action.cat.RestTable.buildHelpWidths;
 import static org.elasticsearch.rest.action.cat.RestTable.pad;
 
+// cat api的抽象类
 public abstract class AbstractCatAction extends BaseRestHandler {
 
     public AbstractCatAction(Settings settings) {
         super(settings);
     }
 
+    // channel消费者（RestChannelConsumer）来处理REST请求
     protected abstract RestChannelConsumer doCatRequest(RestRequest request, NodeClient client);
 
     protected abstract void documentation(StringBuilder sb);

@@ -61,7 +61,8 @@ public abstract class BaseRestHandler extends AbstractComponent implements RestH
     @Override
     public final void handleRequest(RestRequest request, RestChannel channel, NodeClient client) throws Exception {
         // prepare the request for execution; has the side effect of touching the request parameters
-        final RestChannelConsumer action = prepareRequest(request, client);
+        // 调用具体子类的prepareRequest方法
+        final RestChannelConsumer action =  prepareRequest(request, client);
 
         // validate unconsumed params, but we must exclude params used to format the response
         // use a sorted set so the unconsumed parameters appear in a reliable sorted order
@@ -125,6 +126,7 @@ public abstract class BaseRestHandler extends AbstractComponent implements RestH
      * REST requests are handled by preparing a channel consumer that represents the execution of
      * the request against a channel.
      */
+    // channel消费者（RestChannelConsumer）来处理REST请求
     @FunctionalInterface
     protected interface RestChannelConsumer extends CheckedConsumer<RestChannel, Exception> {
     }

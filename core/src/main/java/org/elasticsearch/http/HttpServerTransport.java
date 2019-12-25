@@ -25,6 +25,8 @@ import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 
+// 发送请求逻辑分组率属于HttpServerTransport
+// LifecycleComponent接口标记了生命周期状态相关的逻辑
 public interface HttpServerTransport extends LifecycleComponent {
 
     String HTTP_SERVER_WORKER_THREAD_NAME_PREFIX = "http_server_worker";
@@ -39,6 +41,8 @@ public interface HttpServerTransport extends LifecycleComponent {
     /**
      * Dispatches HTTP requests.
      */
+    // 将dispatchRequest这样的方法设计成接口，而发送请求逻辑分组率属于HttpServerTransport
+    // 所以将Dispatcher接口设计成HttpServerTransport的内部接口，这样所有的Dispatcher的实现类都会带有HttpServerTransport接口的标记
     interface Dispatcher {
 
         /**
@@ -49,6 +53,7 @@ public interface HttpServerTransport extends LifecycleComponent {
          * @param channel       the response channel of this request
          * @param threadContext the thread context
          */
+        // 发送request到相关处理请求程序，如果request不能被任何处理请求程序处理则直接响应给RestChannel
         void dispatchRequest(RestRequest request, RestChannel channel, ThreadContext threadContext);
 
         /**
@@ -60,6 +65,7 @@ public interface HttpServerTransport extends LifecycleComponent {
          * @param threadContext the thread context
          * @param cause         the cause of the bad request
          */
+        // 发送一个失败的RestRequest，用在request是残缺的情况下。
         void dispatchBadRequest(RestRequest request, RestChannel channel, ThreadContext threadContext, Throwable cause);
 
     }

@@ -35,10 +35,14 @@ import java.io.IOException;
 import static org.elasticsearch.rest.RestRequest.Method.POST;
 import static org.elasticsearch.rest.RestRequest.Method.PUT;
 
+// 文档索引请求入口
 public class RestIndexAction extends BaseRestHandler {
+
     public RestIndexAction(Settings settings, RestController controller) {
         super(settings);
+        // 如果不指定id，则id会被自动创建，必须用POST方法来发送请求
         controller.registerHandler(POST, "/{index}/{type}", this); // auto id creation
+
         controller.registerHandler(PUT, "/{index}/{type}/{id}", this);
         controller.registerHandler(POST, "/{index}/{type}/{id}", this);
         CreateHandler createHandler = new CreateHandler(settings);
@@ -58,8 +62,10 @@ public class RestIndexAction extends BaseRestHandler {
         }
     }
 
+    // ElasticSearch的Controller接收到Netty4HttpChannel转发的请求后，会调用RestIndexAction中的方法prepareRequest()
     @Override
     public RestChannelConsumer prepareRequest(final RestRequest request, final NodeClient client) throws IOException {
+        //构建IndexRequest
         IndexRequest indexRequest = new IndexRequest(request.param("index"), request.param("type"), request.param("id"));
         indexRequest.routing(request.param("routing"));
         indexRequest.parent(request.param("parent")); // order is important, set it after routing, so it will set the routing
@@ -78,6 +84,7 @@ public class RestIndexAction extends BaseRestHandler {
         indexRequest.version(RestActions.parseVersion(request));
         indexRequest.versionType(VersionType.fromString(request.param("version_type"), indexRequest.versionType()));
         String sOpType = request.param("op_type");
+        // 等待最小活跃分片数
         String waitForActiveShards = request.param("wait_for_active_shards");
         if (waitForActiveShards != null) {
             indexRequest.waitForActiveShards(ActiveShardCount.parseString(waitForActiveShards));
@@ -85,9 +92,8 @@ public class RestIndexAction extends BaseRestHandler {
         if (sOpType != null) {
             indexRequest.opType(sOpType);
         }
-
-        return channel ->
-                client.index(indexRequest, new RestStatusToXContentListener<>(channel, r -> r.getLocation(indexRequest.routing())));
+        // 返回RestChannelConsumer接口
+        return channel -> client.index(indexRequest, new RestStatusToXContentListener<>(channel, r -> r.getLocation(indexRequest.routing())));
     }
 
 }

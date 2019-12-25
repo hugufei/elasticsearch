@@ -78,6 +78,7 @@ public class EsExecutors {
         return new EsThreadPoolExecutor(name, size, size, 0, TimeUnit.MILLISECONDS, queue, threadFactory, new EsAbortPolicy(), contextHolder);
     }
 
+    //直接在当前线程上提交任务
     private static final ExecutorService DIRECT_EXECUTOR_SERVICE = new AbstractExecutorService() {
 
         @Override

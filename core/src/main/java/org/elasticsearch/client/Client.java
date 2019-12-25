@@ -87,6 +87,9 @@ import java.util.Map;
  * @see org.elasticsearch.node.Node#client()
  * @see org.elasticsearch.client.transport.TransportClient
  */
+
+// 提供了一个用于对集群执行actions或操作的接口
+// 客户可以从一个org.elasticsearch.node.node检索开始，或远程连接使用一个或多个节点org.elasticsearch.client.transport.transportclient。
 public interface Client extends ElasticsearchClient, Releasable {
 
     Setting<String> CLIENT_TYPE_SETTING_S = new Setting<>("client.type", "node", (s) -> {

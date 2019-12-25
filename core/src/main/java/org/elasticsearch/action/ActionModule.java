@@ -326,6 +326,8 @@ import static java.util.Collections.unmodifiableMap;
 
 /**
  * Builds and binds the generic action map, all {@link TransportAction}s, and {@link ActionFilters}.
+ *
+ * Node提供Rest请求功能的主要模块
  */
 public class ActionModule extends AbstractModule {
 
@@ -342,6 +344,8 @@ public class ActionModule extends AbstractModule {
     private final List<Class<? extends ActionFilter>> actionFilters;
     private final AutoCreateIndex autoCreateIndex;
     private final DestructiveOperations destructiveOperations;
+
+    // API提供服务的关键类之一
     private final RestController restController;
 
     public ActionModule(boolean transportClient, Settings settings, IndexNameExpressionResolver indexNameExpressionResolver,
@@ -505,13 +509,16 @@ public class ActionModule extends AbstractModule {
         return unmodifiableList(actionPlugins.stream().flatMap(p -> p.getActionFilters().stream()).collect(Collectors.toList()));
     }
 
+    // 加载全部的RestHandlers
     public void initRestHandlers(Supplier<DiscoveryNodes> nodesInCluster) {
         List<AbstractCatAction> catActions = new ArrayList<>();
+        // 接受AbstractCatAction的子类
         Consumer<RestHandler> registerHandler = a -> {
             if (a instanceof AbstractCatAction) {
                 catActions.add((AbstractCatAction) a);
             }
         };
+        // 如果以下Action是AbstractCatAction的子类，则加入到registerHandler中
         registerHandler.accept(new RestMainAction(settings, restController));
         registerHandler.accept(new RestNodesInfoAction(settings, restController, settingsFilter));
         registerHandler.accept(new RestRemoteClusterInfoAction(settings, restController));
@@ -641,6 +648,7 @@ public class ActionModule extends AbstractModule {
                 registerHandler.accept(handler);
             }
         }
+        // 注册RestCatAction？
         registerHandler.accept(new RestCatAction(settings, restController, catActions));
     }
 

@@ -35,6 +35,8 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * A builder for fixed executors.
+ *
+ * 固定大小的线程池
  */
 public final class FixedExecutorBuilder extends ExecutorBuilder<FixedExecutorBuilder.FixedExecutorSettings> {
 
@@ -50,6 +52,7 @@ public final class FixedExecutorBuilder extends ExecutorBuilder<FixedExecutorBui
      * @param size      the fixed number of threads
      * @param queueSize the size of the backing queue, -1 for unbounded
      */
+    // 固定大小的线程池
     FixedExecutorBuilder(final Settings settings, final String name, final int size, final int queueSize) {
         this(settings, name, size, queueSize, "thread_pool." + name);
     }

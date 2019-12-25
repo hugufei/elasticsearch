@@ -29,7 +29,9 @@ import org.elasticsearch.node.Node;
 
 public abstract class AbstractComponent {
 
+    // 基类Logger
     protected final Logger logger;
+    // Deprecation的Logger: 打印settings配置中不提倡的参数设定
     protected final DeprecationLogger deprecationLogger;
     protected final Settings settings;
 
@@ -55,6 +57,7 @@ public abstract class AbstractComponent {
     /**
      * Checks for a deprecated setting and logs the correct alternative
      */
+    // 提示启动ElasticSearch的用户参数中的settingName是弃用的，可以用方法中的参数alternativeName来代替。
     protected void logDeprecatedSetting(String settingName, String alternativeName) {
         if (!Strings.isNullOrEmpty(settings.get(settingName))) {
             deprecationLogger.deprecated("Setting [{}] is deprecated, use [{}] instead", settingName, alternativeName);
@@ -64,6 +67,7 @@ public abstract class AbstractComponent {
     /**
      * Checks for a removed setting and logs the correct alternative
      */
+    // 提示用户settingName参数已经被移除，可用alternativeName来代替。
     protected void logRemovedSetting(String settingName, String alternativeName) {
         if (!Strings.isNullOrEmpty(settings.get(settingName))) {
             deprecationLogger.deprecated("Setting [{}] has been removed, use [{}] instead", settingName, alternativeName);

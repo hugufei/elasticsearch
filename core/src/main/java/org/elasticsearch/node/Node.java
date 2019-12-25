@@ -243,9 +243,13 @@ public class Node implements Closeable {
     /**
      * Constructs a node with the given settings.
      *
+     * 使用给定的设置构造一个节点。
+     *
      * @param preparedSettings Base settings to configure the node with
+     *
      */
     public Node(Settings preparedSettings) {
+        // prepareEnvironment会解析配置文件
         this(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null));
     }
 
@@ -321,8 +325,9 @@ public class Node implements Closeable {
                     JsonXContent.JSON_ALLOW_UNQUOTED_FIELD_NAMES);
             }
 
-            // 构造plugins
+            // 加载plugins
             this.pluginsService = new PluginsService(tmpSettings, environment.modulesFile(), environment.pluginsFile(), classpathPlugins);
+            // 获取插件的settings对象
             this.settings = pluginsService.updatedSettings();
 
             // 加载LocalNodeFactory
@@ -334,9 +339,13 @@ public class Node implements Closeable {
             Environment.assertEquivalent(environment, this.environment);
 
             // 构造ThreadPool，接收参数为setting和plugins的builder
+            // 获取插件中需要的线程池
             final List<ExecutorBuilder<?>> executorBuilders = pluginsService.getExecutorBuilders(settings);
+            // 在获得自定义线程池构建器集合后，开始构建线程池
             final ThreadPool threadPool = new ThreadPool(settings, executorBuilders.toArray(new ExecutorBuilder[0]));
             resourcesToClose.add(() -> ThreadPool.terminate(threadPool, 10, TimeUnit.SECONDS));
+
+
             // adds the context to the DeprecationLogger so that it does not need to be injected everywhere
             DeprecationLogger.setThreadContext(threadPool.getThreadContext());
             resourcesToClose.add(() -> DeprecationLogger.removeThreadContext(threadPool.getThreadContext()));
@@ -348,7 +357,10 @@ public class Node implements Closeable {
             for (final ExecutorBuilder<?> builder : threadPool.builders()) {
                 additionalSettings.addAll(builder.getRegisteredSettings());
             }
+            // 通过线程池进行了NodeClient的构建
             client = new NodeClient(settings, threadPool);
+
+            // ResourceWatcherService对象的构建
             final ResourceWatcherService resourceWatcherService = new ResourceWatcherService(settings, threadPool);
 
             // 构造scriptModule，analysisModule，settingsModule
@@ -552,8 +564,10 @@ public class Node implements Closeable {
                 }),
                 () -> clusterService.localNode().getId());
 
+            // 在取得http.enabled的设定参数值为true后，会开始初始化http处理程序
             if (NetworkModule.HTTP_ENABLED.get(settings)) {
                 logger.debug("initializing HTTP handlers ...");
+                // 初始化http处理程序
                 actionModule.initRestHandlers(() -> clusterService.state().nodes());
             }
             logger.info("initialized");

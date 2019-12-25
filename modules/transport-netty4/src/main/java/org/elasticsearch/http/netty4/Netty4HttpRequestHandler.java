@@ -44,6 +44,12 @@ class Netty4HttpRequestHandler extends SimpleChannelInboundHandler<Object> {
         this.threadContext = threadContext;
     }
 
+
+    // 请求入口1：
+    // Netty4HttpRequestHandler.channelRead0
+    // Netty4HttpServerTransport.dispathchRequest
+    // RestController.DispatchRequest
+    // channelRead0方法接收到请求，然后发送给Netty4HttpServerTransport的dispathchRequest
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         final FullHttpRequest request;
@@ -68,6 +74,7 @@ class Netty4HttpRequestHandler extends SimpleChannelInboundHandler<Object> {
         final Netty4HttpChannel channel =
                 new Netty4HttpChannel(serverTransport, httpRequest, pipelinedRequest, detailedErrorsEnabled, threadContext);
 
+        // 转发给Netty4HttpServerTransport的dispathchRequest
         if (request.decoderResult().isSuccess()) {
             serverTransport.dispatchRequest(httpRequest, channel);
         } else {

@@ -36,20 +36,28 @@ import java.util.List;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 
+// 处理cat aliases API
 public class RestAliasAction extends AbstractCatAction {
+
     public RestAliasAction(Settings settings, RestController controller) {
         super(settings);
         controller.registerHandler(GET, "/_cat/aliases", this);
         controller.registerHandler(GET, "/_cat/aliases/{alias}", this);
     }
 
+    // Node在接收到aliases catAPI请求后，转发到RestAliasAction的doCatRequest方法，该方法会先确定这个请求是否是来自本地
+    // 返回一个RestChannelConsumer
     @Override
     protected RestChannelConsumer doCatRequest(final RestRequest request, final NodeClient client) {
+        // 构造GetAliasesRequest请求
         final GetAliasesRequest getAliasesRequest = request.hasParam("alias") ?
                 new GetAliasesRequest(request.param("alias")) :
                 new GetAliasesRequest();
+        // 确定这个请求是否是来自本地
         getAliasesRequest.local(request.paramAsBoolean("local", getAliasesRequest.local()));
 
+        // 这里的NodeClient是在本地节点上执行操作的Client
+        // 通过参数“索引别名请求(getAliasesRequest)”和“通知结果监听器(new RestResponseListener<GetAliasesResponse>(channel))”来获取特定索引或按名称存在的特定索引别名
         return channel -> client.admin().indices().getAliases(getAliasesRequest, new RestResponseListener<GetAliasesResponse>(channel) {
             @Override
             public RestResponse buildResponse(GetAliasesResponse response) throws Exception {

@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A builder for scaling executors.
+ *
+ * 可伸缩的Executor构建器
  */
 public final class ScalingExecutorBuilder extends ExecutorBuilder<ScalingExecutorBuilder.ScalingExecutorSettings> {
 

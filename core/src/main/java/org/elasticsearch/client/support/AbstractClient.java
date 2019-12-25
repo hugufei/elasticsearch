@@ -404,10 +404,13 @@ public abstract class AbstractClient extends AbstractComponent implements Client
     @Override
     public final <Request extends ActionRequest, Response extends ActionResponse, RequestBuilder extends ActionRequestBuilder<Request, Response, RequestBuilder>> void execute(
             Action<Request, Response, RequestBuilder> action, Request request, ActionListener<Response> listener) {
+        // 包装监听器
         listener = threadedWrapper.wrap(listener);
+        // 真正的执行
         doExecute(action, request, listener);
     }
 
+    // 执行请求的通用方法
     protected abstract <Request extends ActionRequest, Response extends ActionResponse, RequestBuilder extends ActionRequestBuilder<Request, Response, RequestBuilder>> void doExecute(Action<Request, Response, RequestBuilder> action, Request request, ActionListener<Response> listener);
 
     @Override
